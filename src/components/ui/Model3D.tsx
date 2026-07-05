@@ -15,9 +15,10 @@ interface SceneProps {
   scrollRef: React.RefObject<number>;
   autoRotate: boolean;
   modelScale: number;
+  float: boolean;
 }
 
-function ModelScene({ mouseRef, scrollRef, autoRotate, modelScale }: SceneProps) {
+function ModelScene({ mouseRef, scrollRef, autoRotate, modelScale, float }: SceneProps) {
   const gltf = useGLTF('/model3D_final.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
 
   const { scene, offset } = useMemo(() => {
@@ -62,7 +63,7 @@ function ModelScene({ mouseRef, scrollRef, autoRotate, modelScale }: SceneProps)
     }
 
     groupRef.current.rotation.x += (mouseRef.current.y * 0.25 - groupRef.current.rotation.x) * 0.04;
-    groupRef.current.position.y = Math.sin(t * 0.52) * 0.12;
+    groupRef.current.position.y = float ? Math.sin(t * 0.52) * 0.12 : 0;
   });
 
   return (
@@ -83,6 +84,13 @@ export interface Model3DProps {
   style?: React.CSSProperties;
   accentColor?: string;
   accentColorSecondary?: string;
+  /** 'demand' only re-renders when invalidated (mount, prop change, or a manual
+   *  `invalidate()` call) instead of driving a continuous 60fps loop — use for
+   *  a static/idle presentation that shouldn't burn GPU when untouched. */
+  frameloop?: 'always' | 'demand';
+  /** Continuous idle bobbing. Disable alongside frameloop="demand" so the
+   *  model doesn't "hop" to wherever sin(t) landed on the next invalidation. */
+  float?: boolean;
 }
 
 export const Model3D = React.memo(function Model3D({
@@ -94,6 +102,8 @@ export const Model3D = React.memo(function Model3D({
   style = DEFAULT_STYLE,
   accentColor = "#FACC15",
   accentColorSecondary = "#F59E0B",
+  frameloop = 'always',
+  float = true,
 }: Model3DProps) {
   // Memoized so Canvas never sees new object references between renders
   const camera = useMemo(
@@ -104,9 +114,23 @@ export const Model3D = React.memo(function Model3D({
     () => ({
       alpha: true as const,
       antialias: true,
-      powerPreference: 'high-performance' as const,
-      logarithmicDepthBuffer: true, // Solves depth sorting / Z-fighting issues
+      powerPreference: 'default' as const,
     }),
+    []
+  );
+  const handleCreated = useMemo(
+    () => (state: { gl: THREE.WebGLRenderer; invalidate: () => void }) => {
+      const canvas = state.gl.domElement;
+      const onContextLost = (event: Event) => {
+        event.preventDefault();
+      };
+      const onContextRestored = () => {
+        state.invalidate();
+      };
+
+      canvas.addEventListener('webglcontextlost', onContextLost, false);
+      canvas.addEventListener('webglcontextrestored', onContextRestored, false);
+    },
     []
   );
 
@@ -115,8 +139,10 @@ export const Model3D = React.memo(function Model3D({
       camera={camera}
       style={style}
       gl={gl}
-      dpr={[1, 1.5]}
+      dpr={[1, 1.25]}
       performance={{ min: 0.5 }}
+      frameloop={frameloop}
+      onCreated={handleCreated}
     >
       <Suspense fallback={null}>
         <ambientLight intensity={0.65} />
@@ -129,6 +155,7 @@ export const Model3D = React.memo(function Model3D({
           scrollRef={scrollRef}
           autoRotate={autoRotate}
           modelScale={modelScale}
+          float={float}
         />
       </Suspense>
     </Canvas>

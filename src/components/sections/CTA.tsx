@@ -10,19 +10,22 @@ const SecondaryButton = ({ href, children }: { href: string; children: ReactNode
   const [hovered, setHovered] = useState(false);
 
   return (
+    // Transform lives on the inner span, not this `<a>` — see AccentButton
+    // for why (a moving hit-box thrashes the custom cursor's hover state).
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
+      style={{ display: 'inline-flex', textDecoration: 'none', borderRadius: '9999px' }}
+    >
+      <span style={{
         display: 'inline-flex', alignItems: 'center', gap: '0.6rem',
         padding: '1.1rem 2.4rem',
         borderRadius: '9999px',
         fontSize: '0.88rem', fontWeight: 700,
         letterSpacing: '0.04em',
-        textDecoration: 'none',
         color: hovered ? '#fff' : 'rgba(255,255,255,0.7)',
         background: hovered ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)',
         border: '1px solid rgba(255,255,255,0.12)',
@@ -30,9 +33,9 @@ const SecondaryButton = ({ href, children }: { href: string; children: ReactNode
         transition: 'all 0.3s ease',
         backdropFilter: 'blur(8px)',
         fontFamily: 'inherit',
-      }}
-    >
-      {children}
+      }}>
+        {children}
+      </span>
     </a>
   );
 };

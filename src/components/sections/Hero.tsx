@@ -63,9 +63,6 @@ export const Hero = () => {
   const spotlightRef = useRef<HTMLDivElement>(null);
   const heroRectRef = useRef<DOMRect | null>(null);
 
-  // Passed to Model3D — read inside useFrame without triggering re-renders
-  const modelMouseRef = useRef({ x: 0, y: 0 });
-
   // Keep accent RGB accessible inside event handlers without closing over a stale value
   const accentRgbRef = useRef(accentColorRgb);
   useEffect(() => { accentRgbRef.current = accentColorRgb; }, [accentColorRgb]);
@@ -76,36 +73,7 @@ export const Hero = () => {
     return () => clearTimeout(t1);
   }, []);
 
-  // Scroll parallax — direct DOM, no React state
-  useEffect(() => {
-    const h = window.innerHeight || 800;
-    const handler = () => {
-      const p = Math.min(window.scrollY / h, 1);
-      if (contentRef.current) {
-        contentRef.current.style.transform = `translateY(${-p * 55}px)`;
-        contentRef.current.style.opacity = String(Math.max(1 - p * 1.25, 0));
-      }
-      if (scrollIndRef.current) {
-        scrollIndRef.current.style.opacity = String(Math.max(1 - p * 3, 0));
-      }
-    };
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
-  // Measure rect on mount and window resize to avoid layout reflows on mousemove
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el) return;
-    const measure = () => {
-      heroRectRef.current = el.getBoundingClientRect();
-    };
-    measure();
-    window.addEventListener('resize', measure, { passive: true });
-    return () => window.removeEventListener('resize', measure);
-  }, []);
-
-  // Mouse tracking — direct DOM spotlight + modelMouseRef, no setState
+ 
   useEffect(() => {
     const el = heroRef.current;
     if (!el) return;
@@ -122,9 +90,6 @@ export const Hero = () => {
           spotlightRef.current.style.background =
             `radial-gradient(ellipse 55% 50% at ${x}% ${y}%, rgba(${accentRgbRef.current},0.05) 0%, transparent 70%)`;
         }
-
-        modelMouseRef.current.x = (x / 100 - 0.5) * 2;
-        modelMouseRef.current.y = (y / 100 - 0.5) * 2;
       });
     };
     el.addEventListener('mousemove', handler);
@@ -143,12 +108,10 @@ export const Hero = () => {
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
-        padding: '6rem 1.5rem 0',
+        padding: 'clamp(4.5rem, 13vw, 6rem) 1.5rem 2.5rem',
         background: '#000',
       }}
     >
-
-
       {/* Ambient gradient — CSS-transitioned on product mode change */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -189,7 +152,7 @@ export const Hero = () => {
             borderRadius: '9999px',
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
-            marginBottom: '2.8rem',
+            marginBottom: 'clamp(1.7rem, 6vw, 2.8rem)',
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
             transition: 'opacity 0.6s ease, transform 0.6s ease',
@@ -225,7 +188,7 @@ export const Hero = () => {
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
             color: accentColor,
-            marginBottom: '1.2rem',
+            marginBottom: 'clamp(0.9rem, 3vw, 1.2rem)',
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0)' : 'translateY(14px)',
             transition: 'opacity 0.6s ease 0.08s, transform 0.6s ease 0.08s, color 0.7s ease',
@@ -238,7 +201,7 @@ export const Hero = () => {
             fontWeight: 900,
             lineHeight: 0.92,
             letterSpacing: '-0.04em',
-            marginBottom: '1.8rem',
+            marginBottom: 'clamp(1.1rem, 4vw, 1.8rem)',
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0)' : 'translateY(22px)',
             transition: 'opacity 0.7s ease 0.14s, transform 0.7s ease 0.14s',
@@ -269,7 +232,7 @@ export const Hero = () => {
             color: 'rgba(255,255,255,0.42)',
             lineHeight: 1.6,
             letterSpacing: '0.01em',
-            marginBottom: '2.8rem',
+            marginBottom: 'clamp(1.8rem, 6vw, 2.8rem)',
             maxWidth: '28rem',
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0)' : 'translateY(18px)',
@@ -327,60 +290,16 @@ export const Hero = () => {
               overflow: 'visible',
             }}>
               <Model3D
-                mouseRef={modelMouseRef}
                 modelScale={1.25}
                 accentColor={accentColor}
                 accentColorSecondary={accentColorSecondary}
                 autoRotate={false}
+                float={false}
+                frameloop="demand"
               />
             </div>
           </div>
 
-          {/* Live indicator */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.6rem',
-            marginTop: '1.5rem',
-            fontSize: '0.72rem', fontWeight: 600,
-            color: 'rgba(255,255,255,0.35)',
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(12px)',
-            transition: 'opacity 0.6s ease 0.45s, transform 0.6s ease 0.45s',
-          }}>
-            <span style={{ position: 'relative', display: 'inline-flex', width: 7, height: 7, flexShrink: 0 }}>
-              <span style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                background: accentColor,
-                animation: 'cm-ping 2s cubic-bezier(0,0,0.2,1) infinite',
-              }} />
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: accentColor }} />
-            </span>
-            <span style={{ color: '#fff', fontWeight: 800 }}>{c.badge}</span>
-            <span>· Vista 3D</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll indicator — opacity controlled via ref on scroll */}
-      <div ref={scrollIndRef} style={{
-        position: 'absolute', bottom: '2.5rem', left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem',
-        opacity: isVisible ? 1 : 0,
-        transition: 'opacity 0.5s ease 0.8s',
-      }}>
-        <span style={{
-          fontSize: '0.55rem', letterSpacing: '0.32em',
-          color: 'rgba(255,255,255,0.18)',
-          textTransform: 'uppercase', fontWeight: 600,
-        }}>
-          Scroll
-        </span>
-        <div style={{ width: 1, height: 44, overflow: 'hidden', position: 'relative' }}>
-          <div style={{
-            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-            background: `linear-gradient(to bottom, transparent, ${accentColor}, transparent)`,
-            animation: 'cm-scroll-line 1.8s ease-in-out infinite',
-          }} />
         </div>
       </div>
 

@@ -5,12 +5,12 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Model3D } from '@/components/ui/Model3D';
 
 const specs = [
-  { id: 'motor',     label: 'Motor',          value: '7 HP',              unit: 'Gasolina 4T',      x: 27, y: 63, dir: 'left'  as const, lineLen: 140, threshold: 0.10 },
-  { id: 'cuchillas', label: 'Cuchillas',      value: 'Acero bicromatado', unit: 'Alta resistencia', x: 66, y: 74, dir: 'right' as const, lineLen: 130, threshold: 0.25 },
-  { id: 'peso',      label: 'Peso neto',      value: '85 kg',             unit: 'Chasis reforzado', x: 29, y: 42, dir: 'left'  as const, lineLen: 120, threshold: 0.40 },
-  { id: 'ancho',     label: 'Ancho de labor', value: '60–90 cm',          unit: 'Ajustable',        x: 68, y: 44, dir: 'right' as const, lineLen: 135, threshold: 0.55 },
-  { id: 'manillar',  label: 'Manillar',       value: 'Ajustable',         unit: 'Ergonómico',       x: 31, y: 22, dir: 'left'  as const, lineLen: 125, threshold: 0.70 },
-  { id: 'garantia',  label: 'Garantía',       value: '2 años',            unit: 'Respaldo oficial', x: 67, y: 24, dir: 'right' as const, lineLen: 115, threshold: 0.84 },
+  { id: 'motor',     label: 'Motor',          value: '7 HP',              unit: 'Gasolina 4T',      x: 24, y: 63, dir: 'left'  as const, lineLen: 158, threshold: 0.10 },
+  { id: 'cuchillas', label: 'Cuchillas',      value: 'Acero bicromatado', unit: 'Alta resistencia', x: 68, y: 74, dir: 'right' as const, lineLen: 148, threshold: 0.25 },
+  { id: 'peso',      label: 'Peso neto',      value: '85 kg',             unit: 'Chasis reforzado', x: 26, y: 42, dir: 'left'  as const, lineLen: 136, threshold: 0.40 },
+  { id: 'ancho',     label: 'Ancho de labor', value: '60–90 cm',          unit: 'Ajustable',        x: 70, y: 44, dir: 'right' as const, lineLen: 152, threshold: 0.55 },
+  { id: 'manillar',  label: 'Manillar',       value: 'Ajustable',         unit: 'Ergonómico',       x: 28, y: 22, dir: 'left'  as const, lineLen: 142, threshold: 0.70 },
+  { id: 'garantia',  label: 'Garantía',       value: '2 años',            unit: 'Respaldo oficial', x: 69, y: 24, dir: 'right' as const, lineLen: 130, threshold: 0.84 },
 ] as const;
 
 /* ── Annotation ──────────────────────────────────────────────────────────────
@@ -45,9 +45,9 @@ const Annotation = React.memo(function Annotation({
       {/* Pulse ring */}
       <div style={{
         position: 'absolute',
-        width: 18, height: 18, borderRadius: '50%',
+        width: 22, height: 22, borderRadius: '50%',
         border: `1px solid rgba(${accentColorRgb},0.4)`,
-        left: -9, top: -9,
+        left: -11, top: -11,
         opacity: visible ? 1 : 0,
         transition: 'opacity 0.3s ease',
         animation: visible ? 'cm-ping 2.2s ease-out infinite' : 'none',
@@ -56,9 +56,9 @@ const Annotation = React.memo(function Annotation({
       {/* Center dot */}
       <div style={{
         position: 'absolute',
-        width: 5, height: 5, borderRadius: '50%',
+        width: 6, height: 6, borderRadius: '50%',
         background: accentColor,
-        left: -2.5, top: -2.5,
+        left: -3, top: -3,
         boxShadow: `0 0 8px rgba(${accentColorRgb},0.9)`,
         opacity: visible ? 1 : 0,
         transform: visible ? 'scale(1)' : 'scale(0)',
@@ -106,13 +106,13 @@ const Annotation = React.memo(function Annotation({
           : 'none',
         whiteSpace: 'nowrap',
       }}>
-        <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.2rem' }}>
+        <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.3rem' }}>
           {label}
         </div>
-        <div style={{ fontSize: '1rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+        <div style={{ fontSize: 'clamp(1.2rem, 1.5vw, 1.5rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
           {value}
         </div>
-        <div style={{ fontSize: '0.5rem', color: accentColor, letterSpacing: '0.12em', fontWeight: 600, marginTop: '0.15rem', textTransform: 'uppercase' }}>
+        <div style={{ fontSize: '0.66rem', color: accentColor, letterSpacing: '0.1em', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>
           {unit}
         </div>
       </div>
@@ -165,6 +165,16 @@ export const ModelShowcase = () => {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const specCountRef = useRef<HTMLSpanElement>(null);
   const specCountWrapRef = useRef<HTMLDivElement>(null);
+
+  // Compact single-card mode (mobile/tablet) — one spec at a time, cycling
+  // through with its own appear/disappear fade instead of the scattered
+  // constellation used on wider screens.
+  const compactWrapRef = useRef<HTMLDivElement>(null);
+  const compactIndexRef = useRef<HTMLSpanElement>(null);
+  const compactLabelRef = useRef<HTMLSpanElement>(null);
+  const compactValueRef = useRef<HTMLDivElement>(null);
+  const compactUnitRef = useRef<HTMLDivElement>(null);
+  const compactShownIndexRef = useRef(-1);
 
   // Measure section bounds once + on resize
   useEffect(() => {
@@ -230,6 +240,33 @@ export const ModelShowcase = () => {
         shownCountRef.current = shown;
         setShownCount(shown);
       }
+
+      // Compact card (mobile/tablet): split the scroll range into one segment
+      // per spec and fade the active one in, hold, then fade it out before
+      // the next takes over. Hidden via CSS on wider screens, but the DOM
+      // writes here are cheap enough to always run rather than branch on a
+      // matchMedia check.
+      const segLen = 1 / specs.length;
+      const segPos = p / segLen;
+      const idx = Math.max(0, Math.min(specs.length - 1, Math.floor(segPos)));
+      const localT = segPos - idx;
+      let cOpacity = 1;
+      if (localT < 0.18) cOpacity = localT / 0.18;
+      else if (localT > 0.82) cOpacity = (1 - localT) / 0.18;
+      cOpacity = Math.max(0, Math.min(1, cOpacity));
+
+      if (idx !== compactShownIndexRef.current) {
+        compactShownIndexRef.current = idx;
+        const spec = specs[idx];
+        if (compactLabelRef.current) compactLabelRef.current.textContent = spec.label;
+        if (compactValueRef.current) compactValueRef.current.textContent = spec.value;
+        if (compactUnitRef.current) compactUnitRef.current.textContent = spec.unit;
+        if (compactIndexRef.current) compactIndexRef.current.textContent = `0${idx + 1} / 0${specs.length}`;
+      }
+      if (compactWrapRef.current) {
+        compactWrapRef.current.style.opacity = String(cOpacity);
+        compactWrapRef.current.style.transform = `translate(-50%, -50%) translateY(${(1 - cOpacity) * 12}px)`;
+      }
     };
 
     window.addEventListener('scroll', handler, { passive: true });
@@ -290,8 +327,10 @@ export const ModelShowcase = () => {
           )}
         </div>
 
-        {/* Annotation lines — React renders, GPU animates via CSS transitions */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
+        {/* Annotation lines — desktop/laptop only. Below 1024px they're swapped
+            for the single cycling card (showcase-annotations-compact) since six
+            scattered callouts don't fit a narrow screen without overlapping. */}
+        <div className="showcase-annotations-desktop" style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
           {specs.map((spec, i) => (
             <Annotation
               key={spec.id}
@@ -320,7 +359,7 @@ export const ModelShowcase = () => {
           }}
         >
           <p style={{
-            fontSize: '0.55rem',
+            fontSize: 'clamp(0.42rem, 1.8vw, 0.55rem)',
             letterSpacing: '0.45em',
             color: accentColor,
             textTransform: 'uppercase',
@@ -361,9 +400,11 @@ export const ModelShowcase = () => {
           </div>
         </div>
 
-        {/* Degree counter + dial */}
+        {/* Degree counter + dial — desktop/laptop only, hidden in compact mode
+            to leave room for the cycling spec card below. */}
         <div
           ref={dialWrapRef}
+          className="showcase-dial"
           style={{
             position: 'absolute', bottom: '2.2rem', left: '50%',
             transform: 'translateX(-50%)',
@@ -429,9 +470,12 @@ export const ModelShowcase = () => {
           </div>
         </div>
 
-        {/* Spec count */}
+        {/* Spec count — desktop/laptop only; the compact card shows its own
+            index inline, so this would be redundant (and collide with the
+            eyebrow) on narrow screens. */}
         <div
           ref={specCountWrapRef}
+          className="showcase-speccount"
           style={{
             position: 'absolute', top: '2rem', right: '2.5rem',
             zIndex: 6, pointerEvents: 'none',
@@ -443,6 +487,42 @@ export const ModelShowcase = () => {
           </div>
           <div style={{ fontSize: '0.85rem', fontWeight: 900, color: accentColor }}>
             <span ref={specCountRef}>0 / {specs.length}</span>
+          </div>
+        </div>
+
+        {/* Compact spec card — mobile/tablet only. One characteristic at a
+            time, larger and centered, fading in/out as the scroll segment
+            for each spec is entered/left (see the scroll handler above). */}
+        <div
+          ref={compactWrapRef}
+          className="showcase-annotations-compact"
+          style={{
+            position: 'absolute', top: '70%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'min(88vw, 22rem)',
+            textAlign: 'center',
+            zIndex: 7, pointerEvents: 'none', opacity: 0,
+          }}
+        >
+          <div style={{
+            fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.18em',
+            textTransform: 'uppercase', color: accentColor, marginBottom: '0.6rem',
+          }}>
+            <span ref={compactIndexRef}>01 / 06</span>
+            {' · '}
+            <span ref={compactLabelRef}>Motor</span>
+          </div>
+          <div ref={compactValueRef} style={{
+            fontSize: 'clamp(1.9rem, 9vw, 2.6rem)', fontWeight: 900, color: '#fff',
+            letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '0.5rem',
+          }}>
+            7 HP
+          </div>
+          <div ref={compactUnitRef} style={{
+            fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)',
+            fontWeight: 600, letterSpacing: '0.06em',
+          }}>
+            Gasolina 4T
           </div>
         </div>
 

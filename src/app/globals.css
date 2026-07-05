@@ -54,22 +54,34 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; 
   0%   { transform: scale(0.95); opacity: 0.6; }
   100% { transform: scale(1.7);  opacity: 0; }
 }
-/* ── Hero layout ── */
+/* ── Hero layout ──
+   Below the 968px breakpoint the grid stacks to a single column, so the 3D
+   visual would otherwise inherit the full viewport width — at phone/tablet
+   aspect ratios that makes it (and its decorative ring) enormous, pushing
+   everything else off-screen. Capping its width keeps the stacked layout
+   compact instead of "disordered". */
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3.5rem;
+  gap: 2.5rem;
   align-items: center;
 }
 .hero-text { text-align: center; }
 .hero-sub { max-width: 32rem; margin: 0 auto 3rem; }
 
-.hero-visual-wrap { display: flex; flex-direction: column; align-items: center; }
+.hero-visual-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0 auto;
+}
 
 .hero-visual {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   border-radius: 1.75rem;
   overflow: visible;
   transform: translateZ(0);          /* capa propia estable */
@@ -77,12 +89,35 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; 
   backface-visibility: hidden;        /* mata el flicker subpíxel durante el scale de entrada */
   isolation: isolate;                 /* stacking context propio: no se re-compone junto al glow */
 }
+@media (min-width: 640px) {
+  .hero-visual-wrap { max-width: 26rem; }
+}
 @media (min-width: 968px) {
   .hero-grid { grid-template-columns: 1.05fr 0.95fr; gap: 4rem; }
   .hero-text { text-align: left; }
   .hero-sub { margin: 0 0 3rem; }
-  .hero-visual-wrap { align-items: stretch; }
+  .hero-visual-wrap { align-items: stretch; max-width: none; margin: 0; }
   .hero-visual { aspect-ratio: 4 / 3; }
+}
+
+/* ── ModelShowcase responsive ──
+   Below 1024px (tablets and phones) six scattered annotations don't fit
+   without overlapping each other and the center title, so they're swapped
+   for one larger card that cycles through the specs as you scroll. The
+   rotation dial and the top-right spec counter are dropped in that mode —
+   the compact card already shows its own index, and the freed space keeps
+   the section from feeling cluttered. */
+.showcase-annotations-compact { display: none; }
+@media (max-width: 1023px) {
+  /* !important: these elements also carry an inline `display` (set via their
+     React style prop for layout), which otherwise always wins over a plain
+     class rule regardless of specificity. */
+  .showcase-annotations-desktop,
+  .showcase-dial,
+  .showcase-speccount {
+    display: none !important;
+  }
+  .showcase-annotations-compact { display: block !important; }
 }
 
 /* ── Focus visible ── */
