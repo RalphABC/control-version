@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { GradientText } from '@/components/ui/GradientText';
 import { AccentButton } from '@/components/ui/AccentButton';
-import { Model3D } from '@/components/ui/Model3D';
 
 interface HeroContent {
   category: string;
@@ -38,6 +37,23 @@ const CONTENT: Record<'motocultores' | 'bombas', HeroContent> = {
   },
 };
 
+// Configuración de imágenes del slider
+// Ajusta estas rutas según tu estructura de archivos
+const SLIDER_IMAGES = {
+  motocultores: [
+    '/images/M01.png',
+    '/images/M02.png',
+    '/images/M03.png',
+    '/images/M04.png',
+  ],
+  bombas: [
+    '/images/B01.png',
+    '/images/B02.png',
+    '/images/B03.png',
+    '/images/B04.png',
+  ],
+};
+
 // Stable style object — toggleBase never changes, so no need to re-create it
 const TOGGLE_BASE: CSSProperties = {
   padding: '0.55rem 1.4rem',
@@ -55,6 +71,8 @@ const TOGGLE_BASE: CSSProperties = {
 export const Hero = () => {
   const { setProductMode, isMotocultores, accentColor, accentColorRgb, accentColorSecondary, buttonGradient, titleGradient } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Refs for direct DOM manipulation — bypasses React render cycle entirely
   const heroRef = useRef<HTMLElement>(null);
@@ -62,10 +80,14 @@ export const Hero = () => {
   const scrollIndRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
   const heroRectRef = useRef<DOMRect | null>(null);
+  const sliderTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Keep accent RGB accessible inside event handlers without closing over a stale value
   const accentRgbRef = useRef(accentColorRgb);
   useEffect(() => { accentRgbRef.current = accentColorRgb; }, [accentColorRgb]);
+
+  // Obtener imágenes actuales según el modo
+  const currentImages = isMotocultores ? SLIDER_IMAGES.motocultores : SLIDER_IMAGES.bombas;
 
   // Fade-in (fires once)
   useEffect(() => {
@@ -73,7 +95,7 @@ export const Hero = () => {
     return () => clearTimeout(t1);
   }, []);
 
- 
+  // Mouse spotlight effect
   useEffect(() => {
     const el = heroRef.current;
     if (!el) return;
@@ -95,6 +117,50 @@ export const Hero = () => {
     el.addEventListener('mousemove', handler);
     return () => { el.removeEventListener('mousemove', handler); cancelAnimationFrame(frame); };
   }, []);
+
+  // Auto-slide con intervalo de 3 segundos
+  useEffect(() => {
+    // Reiniciar timer cuando cambian las imágenes (por cambio de modo)
+    if (sliderTimerRef.current) {
+      clearInterval(sliderTimerRef.current);
+    }
+
+    sliderTimerRef.current = setInterval(() => {
+      goToNext();
+    }, 3000);
+
+    return () => {
+      if (sliderTimerRef.current) {
+        clearInterval(sliderTimerRef.current);
+      }
+    };
+  }, [currentImages, isMotocultores]);
+
+  // Resetear índice cuando cambia el modo
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [isMotocultores]);
+
+  const goToNext = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev + 1) % currentImages.length);
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  const goToPrevious = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev - 1 + currentImages.length) % currentImages.length);
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  const goToSlide = (index: number) => {
+    if (isTransitioning || index === currentImageIndex) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex(index);
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
 
   const c = isMotocultores ? CONTENT.motocultores : CONTENT.bombas;
 
@@ -254,52 +320,147 @@ export const Hero = () => {
           </div>
         </div>
 
-        {/* ── Right: 3D model — floating, no box ── */}
+        {/* ── Right: Image Slider ── */}
         <div className="hero-visual-wrap">
           <div style={{
-            position: 'relative', width: '100%',
+            position: 'relative', 
+            width: '100%',
+            aspectRatio: '1/1',
+            maxWidth: '600px',
+            margin: '0 auto',
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.94)',
             transition: 'opacity 1s ease 0.18s, transform 1s cubic-bezier(0.34,1.1,0.64,1) 0.18s',
           }}>
-            {/* Atmospheric glow */}
+            
+            {/* Container de imágenes */}
             <div style={{
-              position: 'absolute', inset: '-20%',
-              background: `radial-gradient(ellipse 65% 60% at 50% 52%, rgba(${accentColorRgb},0.18) 0%, transparent 65%)`,
-              filter: 'blur(55px)',
-              transition: 'background 1.1s ease',
-              pointerEvents: 'none',
-            }} />
-
-            {/* Decorative ring */}
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%',
-              width: '115%', aspectRatio: '1',
-              transform: 'translate(-50%, -50%)',
-              borderRadius: '50%',
-              border: `1px solid rgba(${accentColorRgb},0.12)`,
-              animation: 'cm-ring-cw 28s linear infinite',
-              pointerEvents: 'none',
-            }} />
-
-            {/* Model — floats in open space */}
-            <div className="hero-visual" style={{
               position: 'relative',
-              background: 'transparent',
-              border: 'none',
-              overflow: 'visible',
+              width: '100%',
+              height: '100%',
+              borderRadius: '50px',
+              overflow: 'hidden',
+              background: 'rgba(238, 226, 160, 0.02)',
+              border: `2px solid rgba(${accentColorRgb},0.15)`,
+              boxShadow: `0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(${accentColorRgb},0.08)`,
             }}>
-              <Model3D
-                modelScale={1.25}
-                accentColor={accentColor}
-                accentColorSecondary={accentColorSecondary}
-                autoRotate={false}
-                float={false}
-                frameloop="demand"
-              />
+              
+              {/* Imágenes con transición */}
+              {currentImages.map((src, index) => (
+                <div
+                  key={src}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    opacity: index === currentImageIndex ? 1 : 0,
+                    transform: index === currentImageIndex ? 'scale(1)' : 'scale(1.05)',
+                    transition: 'opacity 0.5s ease, transform 0.7s ease',
+                    willChange: 'transform, opacity',
+                  }}
+                >
+                  <img
+                    src={src}
+                    alt={`${c.category} - Imagen ${index + 1}`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+
+              {/* Overlay gradiente para legibilidad */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: `linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.2) 100%)`,
+                pointerEvents: 'none',
+              }} />
+
+              {/* Controles del slider - solo en desktop (opcional) */}
+              <div style={{
+                position: 'absolute',
+                bottom: '1.5rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                background: 'rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(12px)',
+                padding: '0.35rem 0.75rem',
+                borderRadius: '9999px',
+                border: '1px solid rgba(255,255,255,0.08)',
+              }}>
+                <button
+                  onClick={goToPrevious}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'rgba(255,255,255,0.6)',
+                    cursor: 'pointer',
+                    padding: '0.2rem 0.4rem',
+                    borderRadius: '50%',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
+                  aria-label="Imagen anterior"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                {/* Indicadores de slides */}
+                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                  {currentImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => goToSlide(idx)}
+                      style={{
+                        width: idx === currentImageIndex ? '1.5rem' : '0.4rem',
+                        height: '0.4rem',
+                        borderRadius: '9999px',
+                        border: 'none',
+                        background: idx === currentImageIndex 
+                          ? `rgba(${accentColorRgb},0.8)` 
+                          : 'rgba(255,255,255,0.25)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                      }}
+                      aria-label={`Ir a imagen ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={goToNext}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'rgba(255,255,255,0.6)',
+                    cursor: 'pointer',
+                    padding: '0.2rem 0.4rem',
+                    borderRadius: '50%',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
+                  aria-label="Siguiente imagen"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           </div>
-
         </div>
       </div>
 

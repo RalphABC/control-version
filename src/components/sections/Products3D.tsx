@@ -233,7 +233,7 @@ const Product3DCard = ({
 
 const motocultoresData: ProductData[] = [
   {
-    imageSrc: '/images/motocultor-1.jpg',
+    imageSrc: '/images/M04.png',
     name: 'AgroForce 700',
     tagline: 'El más vendido del Ecuador. Potencia y durabilidad en cada surco.',
     specs: [
@@ -245,7 +245,7 @@ const motocultoresData: ProductData[] = [
     href: 'https://www.campomaq.com.ec/productos/',
   },
   {
-    imageSrc: '/images/motocultor-2.jpg',
+    imageSrc: '/images/M03.png',
     name: 'TerraMax Pro',
     tagline: 'Para suelos duros y pendientes pronunciadas. Control total.',
     specs: [
@@ -257,7 +257,7 @@ const motocultoresData: ProductData[] = [
     href: 'https://www.campomaq.com.ec/productos/',
   },
   {
-    imageSrc: '/images/motocultor-3.jpg',
+    imageSrc: '/images/M06.png',
     name: 'FieldMaster S',
     tagline: 'Compacto y ágil. Ideal para pequeñas y medianas parcelas.',
     specs: [
@@ -272,7 +272,7 @@ const motocultoresData: ProductData[] = [
 
 const bombasData: ProductData[] = [
   {
-    imageSrc: '/images/bomba-5.jpg',
+    imageSrc: '/images/B01.png',
     name: 'SprayJet 20L',
     tagline: 'Fumigación de precisión. Menos producto, más cobertura.',
     specs: [
@@ -284,7 +284,7 @@ const bombasData: ProductData[] = [
     href: 'https://www.campomaq.com.ec/productos/',
   },
   {
-    imageSrc: '/images/bomba-4.jpg',
+    imageSrc: '/images/B02.png',
     name: 'AquaForce 30L',
     tagline: 'Alta potencia para cultivos extensos. Alcance de hasta 12 metros.',
     specs: [
@@ -296,7 +296,7 @@ const bombasData: ProductData[] = [
     href: 'https://www.campomaq.com.ec/productos/',
   },
   {
-    imageSrc: '/images/bomba-2.jpg',
+    imageSrc: '/images/B03.png',
     name: 'NebTech Elite',
     tagline: 'Tecnología de nebulización fina. Protección sin desperdicios.',
     specs: [

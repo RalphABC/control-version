@@ -176,10 +176,10 @@ export const CTA = () => {
           transition: 'opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s',
         }}>
           <AccentButton href="https://www.campomaq.com.ec/productos/" gradient={buttonGradient} shadowRgb={accentColorRgb}>
-            Ver catálogo completo →
+            Catálogo Completo →
           </AccentButton>
           <SecondaryButton href="https://www.campomaq.com.ec/">
-            Ir al sitio oficial
+            Sitio Oficial
           </SecondaryButton>
         </div>
 
