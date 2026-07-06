@@ -5,12 +5,12 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Model3D } from '@/components/ui/Model3D';
 
 const specs = [
-  { id: 'motor',     label: 'Motor',          value: '7 HP',              unit: 'Gasolina 4T',      x: 24, y: 63, dir: 'left'  as const, lineLen: 158, threshold: 0.10 },
-  { id: 'cuchillas', label: 'Cuchillas',      value: 'Acero bicromatado', unit: 'Alta resistencia', x: 68, y: 74, dir: 'right' as const, lineLen: 148, threshold: 0.25 },
-  { id: 'peso',      label: 'Peso neto',      value: '85 kg',             unit: 'Chasis reforzado', x: 26, y: 42, dir: 'left'  as const, lineLen: 136, threshold: 0.40 },
-  { id: 'ancho',     label: 'Ancho de labor', value: '60–90 cm',          unit: 'Ajustable',        x: 70, y: 44, dir: 'right' as const, lineLen: 152, threshold: 0.55 },
-  { id: 'manillar',  label: 'Manillar',       value: 'Ajustable',         unit: 'Ergonómico',       x: 28, y: 22, dir: 'left'  as const, lineLen: 142, threshold: 0.70 },
-  { id: 'garantia',  label: 'Garantía',       value: '2 años',            unit: 'Respaldo oficial', x: 69, y: 24, dir: 'right' as const, lineLen: 130, threshold: 0.84 },
+  { id: 'motor',      label: 'Potencia',       value: '16 HP',             unit: 'Motor diésel',             x: 24, y: 63, dir: 'left'  as const, lineLen: 158, threshold: 0.10 },
+  { id: 'velocidades', label: 'Velocidades',     value: '6 velocidades',     unit: '3 adelante / 3 reversa',    x: 68, y: 74, dir: 'right' as const, lineLen: 148, threshold: 0.25 },
+  { id: 'peso',       label: 'Peso',             value: '162 kg',            unit: '',                         x: 26, y: 42, dir: 'left'  as const, lineLen: 136, threshold: 0.40 },
+  { id: 'ancho',      label: 'Ancho de trabajo', value: '40 × 45 × 50 cm',   unit: '',                         x: 70, y: 44, dir: 'right' as const, lineLen: 152, threshold: 0.55 },
+  { id: 'arranque',   label: 'Arranque',         value: 'Eléctrico o manual', unit: '',                        x: 28, y: 22, dir: 'left'  as const, lineLen: 142, threshold: 0.70 },
+  { id: 'garantia',   label: 'Garantía',         value: '2 años',            unit: 'Respaldo oficial',         x: 69, y: 24, dir: 'right' as const, lineLen: 130, threshold: 0.84 },
 ] as const;
 
 /* ── Annotation ──────────────────────────────────────────────────────────────
@@ -112,9 +112,11 @@ const Annotation = React.memo(function Annotation({
         <div style={{ fontSize: 'clamp(1.2rem, 1.5vw, 1.5rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
           {value}
         </div>
-        <div style={{ fontSize: '0.66rem', color: accentColor, letterSpacing: '0.1em', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>
-          {unit}
-        </div>
+        {unit && (
+          <div style={{ fontSize: '0.66rem', color: accentColor, letterSpacing: '0.1em', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>
+            {unit}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -158,8 +160,6 @@ export const ModelShowcase = () => {
   const modelWrapRef = useRef<HTMLDivElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const titleWrapRef = useRef<HTMLDivElement>(null);
-  const degreesTextRef = useRef<HTMLSpanElement>(null);
-  const needleRef = useRef<HTMLDivElement>(null);
   const dialWrapRef = useRef<HTMLDivElement>(null);
   const progressFillRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -195,7 +195,6 @@ export const ModelShowcase = () => {
     const handler = () => {
       const raw = (window.scrollY - sectionTopRef.current) / scrollHeightRef.current;
       const p = Math.max(0, Math.min(1, raw));
-      const deg = Math.round(p * 360);
 
       // Feed the Three.js loop
       scrollRef.current = p;
@@ -221,9 +220,6 @@ export const ModelShowcase = () => {
         titleWrapRef.current.style.transform = `translateY(${(p - 0.5) * -80}px)`;
       }
 
-      // Degree counter
-      if (degreesTextRef.current) degreesTextRef.current.textContent = `${deg}°`;
-      if (needleRef.current) needleRef.current.style.transform = `rotate(${deg}deg)`;
       if (dialWrapRef.current) dialWrapRef.current.style.opacity = String(Math.min(p * 6, 1));
 
       // Progress bar
@@ -278,7 +274,7 @@ export const ModelShowcase = () => {
       <div style={{
         position: 'sticky', top: 0,
         height: '100vh', overflow: 'hidden',
-        background: '#000',
+        background: 'rgba(0,0,0,0.82)',
       }}>
         {/* Glow — opacity driven via ref */}
         <div
@@ -366,7 +362,7 @@ export const ModelShowcase = () => {
             fontWeight: 700,
             textShadow: `0 0 20px rgba(${accentColorRgb},0.9)`,
           }}>
-            Diseño · Precisión · Durabilidad
+            Potencia · Rendimiento · Durabilidad
           </p>
         </div>
 
@@ -385,7 +381,7 @@ export const ModelShowcase = () => {
               color: '#fff',
               textShadow: '0 2px 80px rgba(0,0,0,0.98), 0 0 150px rgba(0,0,0,0.9)',
             }}>
-              AgroForce
+              TITAN PRO
             </h2>
             <div style={{
               fontSize: 'clamp(1.8rem, 4vw, 3.5rem)',
@@ -395,12 +391,12 @@ export const ModelShowcase = () => {
               textShadow: `0 0 50px rgba(${accentColorRgb},0.8)`,
               marginTop: '0.2rem',
             }}>
-              700
+              TF1600AE
             </div>
           </div>
         </div>
 
-        {/* Degree counter + dial — desktop/laptop only, hidden in compact mode
+        {/* Motor spec badge — desktop/laptop only, hidden in compact mode
             to leave room for the cycling spec card below. */}
         <div
           ref={dialWrapRef}
@@ -417,17 +413,6 @@ export const ModelShowcase = () => {
             border: `1px solid rgba(${accentColorRgb},0.4)`,
             position: 'relative',
           }}>
-            <div
-              ref={needleRef}
-              style={{
-                position: 'absolute',
-                width: 1.5, height: 13,
-                background: `linear-gradient(to top, ${accentColor}, rgba(${accentColorRgb},0.3))`,
-                borderRadius: 2,
-                bottom: '50%', left: 'calc(50% - 0.75px)',
-                transformOrigin: '50% 100%',
-              }}
-            />
             <div style={{
               position: 'absolute', inset: '38%', borderRadius: '50%',
               background: accentColor,
@@ -436,10 +421,10 @@ export const ModelShowcase = () => {
           </div>
           <div>
             <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1 }}>
-              <span ref={degreesTextRef}>0°</span>
+              4 tiempos
             </div>
             <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 700 }}>
-              rotación
+              motor
             </div>
           </div>
         </div>
@@ -510,19 +495,19 @@ export const ModelShowcase = () => {
           }}>
             <span ref={compactIndexRef}>01 / 06</span>
             {' · '}
-            <span ref={compactLabelRef}>Motor</span>
+            <span ref={compactLabelRef}>🚜 Potencia</span>
           </div>
           <div ref={compactValueRef} style={{
             fontSize: 'clamp(1.9rem, 9vw, 2.6rem)', fontWeight: 900, color: '#fff',
             letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: '0.5rem',
           }}>
-            7 HP
+            16 HP
           </div>
           <div ref={compactUnitRef} style={{
             fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)',
             fontWeight: 600, letterSpacing: '0.06em',
           }}>
-            Gasolina 4T
+            Motor diésel
           </div>
         </div>
 

@@ -73,7 +73,7 @@ export const CTA = () => {
       style={{
         position: 'relative',
         padding: '10rem 1.5rem',
-        background: '#000',
+        background: 'rgba(0,0,0,0.82)',
         overflow: 'hidden',
         textAlign: 'center',
       }}

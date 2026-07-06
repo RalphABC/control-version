@@ -77,17 +77,33 @@ const Product3DCard = ({
         opacity: entered ? 1 : 0,
         transformStyle: 'preserve-3d',
         perspective: 1000,
+        position: 'relative',
       }}
     >
+      {/* Glowing Aura behind the card */}
+      <div style={{
+        position: 'absolute',
+        inset: '-10px',
+        background: `radial-gradient(circle, rgba(${accentColorRgb}, 0.28) 0%, transparent 70%)`,
+        filter: 'blur(30px)',
+        opacity: hovered ? 1 : 0,
+        transform: `scale(${hovered ? 1.05 : 0.9})`,
+        transition: 'opacity 0.4s ease, transform 0.4s ease',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
       {/* Card shell */}
       <div style={{
+        position: 'relative',
+        zIndex: 1,
         background: 'linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)',
-        border: `1px solid rgba(${accentColorRgb}, ${hovered ? 0.4 : 0.12})`,
+        border: `1px solid rgba(${accentColorRgb}, ${hovered ? 0.45 : 0.12})`,
         borderRadius: '1.5rem',
         overflow: 'hidden',
         transition: 'border-color 0.4s ease, box-shadow 0.4s ease',
         boxShadow: hovered
-          ? `0 30px 80px rgba(0,0,0,0.6), 0 0 40px rgba(${accentColorRgb},0.15), inset 0 1px 0 rgba(255,255,255,0.1)`
+          ? `0 30px 80px rgba(0,0,0,0.7), 0 0 50px rgba(${accentColorRgb},0.28), inset 0 1px 0 rgba(255,255,255,0.15)`
           : '0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
         backdropFilter: 'blur(12px)',
       }}>
@@ -321,7 +337,7 @@ export const Products3D = () => {
       style={{
         position: 'relative',
         padding: '8rem 1.5rem',
-        background: 'linear-gradient(to bottom, #000 0%, #050505 40%, #0a0a0a 70%, #000 100%)',
+        background: 'linear-gradient(to bottom, rgba(0,0,0,0.82) 0%, rgba(5,5,5,0.82) 40%, rgba(10,10,10,0.82) 70%, rgba(0,0,0,0.82) 100%)',
         overflow: 'hidden',
       }}
     >

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CustomCursor } from '@/components/ui/CustomCursor';
+import { ScrollingBackground } from '@/components/ui/ScrollingBackground';
 import './globals.css';
 
 const inter = Inter({ 
@@ -23,9 +24,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es" className={inter.variable} suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider>
+          <ScrollingBackground />
           <CustomCursor />
           {children}
         </ThemeProvider>

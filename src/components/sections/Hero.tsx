@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { GradientText } from '@/components/ui/GradientText';
@@ -54,6 +55,23 @@ const SLIDER_IMAGES = {
   ],
 };
 
+// Luminous aura that reveals behind the tractor image on hover — no shape,
+// no edges, just a diffuse golden glow (radial gradient fading to fully
+// transparent + blur) for a subtle premium depth effect. Uses the same
+// accent tone as the rest of the page so it doesn't drift orange.
+const GlowAura = ({ color, active }: { color: string; active: boolean }) => (
+  <motion.div
+    className="pointer-events-none absolute inset-[-35%] z-0 rounded-full"
+    style={{
+      background: `radial-gradient(circle, ${color} 0%, rgba(0,0,0,0) 68%)`,
+      filter: 'blur(30px)',
+    }}
+    initial={{ opacity: 0, scale: 0.7 }}
+    animate={active ? { opacity: 0.65, scale: 1 } : { opacity: 0, scale: 0.7 }}
+    transition={{ duration: 0.6, ease: 'easeOut' }}
+  />
+);
+
 // Stable style object — toggleBase never changes, so no need to re-create it
 const TOGGLE_BASE: CSSProperties = {
   padding: '0.55rem 1.4rem',
@@ -69,10 +87,11 @@ const TOGGLE_BASE: CSSProperties = {
 };
 
 export const Hero = () => {
-  const { setProductMode, isMotocultores, accentColor, accentColorRgb, accentColorSecondary, buttonGradient, titleGradient } = useTheme();
+  const { setProductMode, isMotocultores, accentColor, accentColorRgb, buttonGradient, titleGradient } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [visualHovered, setVisualHovered] = useState(false);
 
   // Refs for direct DOM manipulation — bypasses React render cycle entirely
   const heroRef = useRef<HTMLElement>(null);
@@ -175,7 +194,7 @@ export const Hero = () => {
         alignItems: 'center',
         overflow: 'hidden',
         padding: 'clamp(4.5rem, 13vw, 6rem) 1.5rem 2.5rem',
-        background: '#000',
+        background: 'rgba(0,0,0,0.82)',
       }}
     >
       {/* Ambient gradient — CSS-transitioned on product mode change */}
@@ -322,29 +341,36 @@ export const Hero = () => {
 
         {/* ── Right: Image Slider ── */}
         <div className="hero-visual-wrap">
-          <div style={{
-            position: 'relative', 
-            width: '100%',
-            aspectRatio: '1/1',
-            maxWidth: '600px',
-            margin: '0 auto',
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.94)',
-            transition: 'opacity 1s ease 0.18s, transform 1s cubic-bezier(0.34,1.1,0.64,1) 0.18s',
-          }}>
-            
-            {/* Container de imágenes */}
-            <div style={{
-              position: 'relative',
-              width: '100%',
-              height: '100%',
-              borderRadius: '50px',
-              overflow: 'hidden',
-              background: 'rgba(238, 226, 160, 0.02)',
-              border: `2px solid rgba(${accentColorRgb},0.15)`,
-              boxShadow: `0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(${accentColorRgb},0.08)`,
-            }}>
-              
+          {/* Entrance — fade-in + slide in from the right on load */}
+          <motion.div
+            className="relative w-full mx-auto"
+            style={{ aspectRatio: '1/1', maxWidth: '600px' }}
+            initial={{ opacity: 0, x: 70 }}
+            animate={isVisible ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {/* Float layer — subtle continuous idle drift, independent of the entrance/hover transforms */}
+            <div className="hero-visual-float w-full h-full">
+            <div
+              className="relative w-full h-full"
+              onMouseEnter={() => setVisualHovered(true)}
+              onMouseLeave={() => setVisualHovered(false)}
+            >
+              {/* Paint splash burst — reveals behind the tractor on hover */}
+              <GlowAura color={accentColor} active={visualHovered} />
+
+              {/* Container de imágenes — hover: lift + scale, riding the splash reveal */}
+              <motion.div
+                className="relative z-10 w-full h-full rounded-[50px] overflow-hidden bg-[rgba(238,226,160,0.02)]"
+                style={{
+                  boxShadow: `0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(${accentColorRgb},0.08)`,
+                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 15%)',
+                  maskImage: 'linear-gradient(to right, transparent 0%, black 15%)',
+                }}
+                animate={visualHovered ? { scale: 1.05, y: -6 } : { scale: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+              >
+
               {/* Imágenes con transición */}
               {currentImages.map((src, index) => (
                 <div
@@ -459,8 +485,10 @@ export const Hero = () => {
                   <ChevronRight size={16} />
                 </button>
               </div>
+            </motion.div>
             </div>
-          </div>
+            </div>
+          </motion.div>
         </div>
       </div>
 

@@ -21,7 +21,7 @@ export default function Home() {
     <>
       {isLoading && <LoadingScreen />}
       <ScrollProgress />
-      <main style={{ background: '#000', color: '#fff', minHeight: '100vh' }}>
+      <main style={{ position: 'relative', zIndex: 1, color: '#fff', minHeight: '100vh' }}>
         <Hero />
         <ModelShowcase />
         <Products3D />

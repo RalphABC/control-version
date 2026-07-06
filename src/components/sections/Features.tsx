@@ -99,7 +99,7 @@ export const Features = () => {
       style={{
         position: 'relative',
         padding: '8rem 1.5rem',
-        background: '#000',
+        background: 'rgba(0,0,0,0.82)',
         overflow: 'hidden',
       }}
     >
