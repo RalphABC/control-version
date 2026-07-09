@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CustomCursor } from '@/components/ui/CustomCursor';
 import { ScrollingBackground } from '@/components/ui/ScrollingBackground';
+import { FloatingContact } from '@/components/ui/FloatingContact';
 import './globals.css';
 
 const inter = Inter({ 
@@ -13,9 +14,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'AgroTech - Maquinaria Agrícola Profesional',
-  description: 'Motocultores y bombas de fumigación de alta calidad. Potencia, durabilidad y eficiencia para tu campo.',
-  keywords: 'motocultores, bombas fumigación, maquinaria agrícola, equipos campo',
+  title: 'Campomaq | Titan PRO - Motocultores de Élite',
+  description: 'Garantizamos nuestro servicio. Motocultores y sistemas de fumigación de alta calidad. Más de 20 años ofreciendo maquinaria de confianza para el agricultor ecuatoriano.',
+  keywords: 'motocultores, campomaq, titan pro, bombas fumigación, maquinaria agrícola ecuador, motocultor cayambe',
 };
 
 export default function RootLayout({
@@ -29,6 +30,7 @@ export default function RootLayout({
         <ThemeProvider>
           <ScrollingBackground />
           <CustomCursor />
+          <FloatingContact />
           {children}
         </ThemeProvider>
       </body>

@@ -125,62 +125,88 @@ export const CTA = () => {
       }} />
 
       {/* ── Content ── */}
-      <div style={{ position: 'relative', zIndex: 10, maxWidth: '52rem', margin: '0 auto' }}>
-        {/* Eyebrow */}
+      <div style={{ 
+        position: 'relative', 
+        zIndex: 10, 
+        maxWidth: '56rem', 
+        margin: '0 auto',
+        padding: '0 1rem'
+      }}>
         <div style={{
-          fontSize: '0.62rem', letterSpacing: '0.4em',
-          color: accentColor, fontWeight: 700,
-          textTransform: 'uppercase', marginBottom: '1.5rem',
-          opacity: entered ? 1 : 0,
-          transform: entered ? 'translateY(0)' : 'translateY(20px)',
-          transition: 'opacity 0.7s ease, transform 0.7s ease',
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
+          border: `1px solid rgba(${accentColorRgb}, 0.15)`,
+          borderRadius: '3rem',
+          padding: '4.5rem 2rem',
+          boxShadow: `0 30px 70px rgba(0,0,0,0.6), 0 0 45px rgba(${accentColorRgb}, 0.04), inset 0 1px 0 rgba(255,255,255,0.08)`,
+          backdropFilter: 'blur(16px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.25rem',
         }}>
-          ¿Listo para transformar tu campo?
-        </div>
+          {/* Eyebrow */}
+          <div style={{
+            fontSize: '0.68rem', 
+            letterSpacing: '0.35em',
+            color: accentColor, 
+            fontWeight: 800,
+            textTransform: 'uppercase', 
+            marginBottom: '0.5rem',
+            opacity: entered ? 1 : 0,
+            transform: entered ? 'translateY(0)' : 'translateY(15px)',
+            transition: 'opacity 0.6s ease, transform 0.6s ease',
+          }}>
+            ¿Listo para transformar tu campo?
+          </div>
 
-        {/* Main headline */}
-        <h2 style={{
-          fontSize: 'clamp(2rem, 6vw, 5rem)',
-          fontWeight: 900, letterSpacing: '-0.04em',
-          lineHeight: 0.95,
-          color: '#fff',
-          marginBottom: '1.5rem',
-          opacity: entered ? 1 : 0,
-          transform: entered ? 'translateY(0)' : 'translateY(30px)',
-          transition: 'opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s',
-        }}>
-          Eleva tu<br />
-          <GradientText gradient={headlineGradient}>productividad</GradientText>
-        </h2>
+          {/* Main headline */}
+          <h2 style={{
+            fontSize: 'clamp(1.8rem, 4.5vw, 3.5rem)',
+            fontWeight: 900, 
+            letterSpacing: '-0.03em',
+            lineHeight: 1.05,
+            color: '#fff',
+            maxWidth: '46rem',
+            margin: '0 auto',
+            opacity: entered ? 1 : 0,
+            transform: entered ? 'translateY(0)' : 'translateY(25px)',
+            transition: 'opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s',
+          }}>
+            Más de 20 años<br />
+            <GradientText gradient={headlineGradient}>impulsando el desarrollo del campo ecuatoriano.</GradientText>
+          </h2>
 
-        {/* Subtitle */}
-        <p style={{
-          fontSize: 'clamp(0.9rem, 1.5vw, 1.05rem)',
-          color: 'rgba(255,255,255,0.45)',
-          maxWidth: '480px', margin: '0 auto 3rem',
-          lineHeight: 1.8,
-          opacity: entered ? 1 : 0,
-          transform: entered ? 'translateY(0)' : 'translateY(24px)',
-          transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s',
-        }}>
-          {isMotocultores
-            ? 'Visita nuestro catálogo completo y encuentra el motocultor perfecto para tu tipo de suelo y cultivo.'
-            : 'Descubre toda la gama de bombas de fumigación y riego. Más cobertura, menos tiempo, mejores resultados.'}
-        </p>
+          {/* Subtitle */}
+          <p style={{
+            fontSize: 'clamp(0.9rem, 1.3vw, 1.02rem)',
+            color: 'rgba(255,255,255,0.45)',
+            maxWidth: '38rem', 
+            margin: '0.5rem auto 1.75rem',
+            lineHeight: 1.7,
+            opacity: entered ? 1 : 0,
+            transform: entered ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s',
+          }}>
+            Ofrecemos maquinaria agrícola de confianza, servicio técnico calificado y repuestos originales a nivel nacional. Respaldamos tu inversión en cada cosecha.
+          </p>
 
-        {/* CTA buttons */}
-        <div style={{
-          display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap',
-          opacity: entered ? 1 : 0,
-          transform: entered ? 'translateY(0)' : 'translateY(24px)',
-          transition: 'opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s',
-        }}>
-          <AccentButton href="https://www.campomaq.com.ec/productos/" gradient={buttonGradient} shadowRgb={accentColorRgb}>
-            Catálogo Completo →
-          </AccentButton>
-          <SecondaryButton href="https://www.campomaq.com.ec/">
-            Sitio Oficial
-          </SecondaryButton>
+          {/* CTA buttons */}
+          <div style={{
+            display: 'flex', 
+            gap: '1.25rem', 
+            justifyContent: 'center', 
+            flexWrap: 'wrap',
+            opacity: entered ? 1 : 0,
+            transform: entered ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s',
+          }}>
+            <AccentButton href="https://www.campomaq.com.ec/productos/" gradient={buttonGradient} shadowRgb={accentColorRgb}>
+              Catálogo Completo →
+            </AccentButton>
+            <SecondaryButton href="https://www.campomaq.com.ec/">
+              Sitio Oficial
+            </SecondaryButton>
+          </div>
         </div>
 
         {/* Trust indicators */}

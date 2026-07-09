@@ -1,46 +1,109 @@
 @import "tailwindcss";
 
+:root {
+  --color-ink: #000000;
+  --color-surface: #0a0a0a;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-brand-ink: #000000;
+  
+  --text-strong: rgba(255, 255, 255, 0.95);
+  --text-muted: rgba(255, 255, 255, 0.75);
+  --text-faint: rgba(255, 255, 255, 0.45);
+  
+  --glow-strength: 0.22;
+  --shell-max: 72rem;
+
+  /* Default dynamic color variables */
+  --color-brand-current: #facc15;
+  --color-brand-rgb-current: 250, 204, 21;
+  --color-brand-secondary-current: #f59e0b;
+}
+
+[data-mode="motocultores"] {
+  --color-brand-current: #facc15;
+  --color-brand-rgb-current: 250, 204, 21;
+  --color-brand-secondary-current: #f59e0b;
+}
+
+[data-mode="bombas"] {
+  --color-brand-current: #f97316;
+  --color-brand-rgb-current: 249, 115, 22;
+  --color-brand-secondary-current: #ea580c;
+}
+
+@theme {
+  --color-ink: var(--color-ink);
+  --color-surface: var(--color-surface);
+  --color-line: var(--color-line);
+  --color-brand: var(--color-brand-current);
+  --color-brand-secondary: var(--color-brand-secondary-current);
+  --color-brand-ink: var(--color-brand-ink);
+  
+  --text-strong: var(--text-strong);
+  --text-muted: var(--text-muted);
+  --text-faint: var(--text-faint);
+  
+  --glow-strength: var(--glow-strength);
+  --shell-max: var(--shell-max);
+}
+
+@utility hero-scrim {
+  background: linear-gradient(to bottom in oklch, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.82) 100%);
+}
+
+@utility hero-glow {
+  background: radial-gradient(circle at center in oklch, rgba(var(--color-brand-rgb-current), var(--glow-strength)) 0%, transparent 68%);
+}
+
+@utility hero-ambient {
+  background: radial-gradient(ellipse 50% 45% at 12% 20% in oklch, rgba(var(--color-brand-rgb-current), 0.1) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 40% at 88% 80% in oklch, rgba(var(--color-brand-rgb-current), 0.06) 0%, transparent 60%);
+}
+
+@utility card-gradient {
+  background: linear-gradient(145deg in oklch, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.015) 100%);
+}
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
-/* Custom cursor hide default — universal selector so no element (including
-   divs with an inline cursor:pointer, e.g. product cards) can show the
-   native pointer/hand icon and break the custom cursor illusion. */
+/* Custom cursor hide default */
 @media (hover: hover) and (pointer: fine) {
   *, *::before, *::after {
     cursor: none !important;
   }
 }
+
 body {
   font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #000;
-  color: #fff;
+  background: var(--color-ink);
+  color: var(--text-strong);
   overflow-x: hidden;
 }
-h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; font-weight: 800; }
 
-/* Scrollbar — brand yellow */
-::-webkit-scrollbar       { width: 3px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #FACC15, #F59E0B);
-  border-radius: 10px;
-  box-shadow: 0 0 6px rgba(250,204,21,0.5);
+h1, h2, h3, h4, h5, h6 { 
+  font-family: var(--font-inter), system-ui, sans-serif; 
+  font-weight: 800; 
 }
-::selection { background: #FACC15; color: #000; }
 
-/* ── Brand keyframe animations ── */
+/* Scrollbar — brand dynamic */
+::-webkit-scrollbar       { width: 3px; }
+::-webkit-scrollbar-track { background: var(--color-ink); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom in oklch, var(--color-brand), var(--color-brand-secondary));
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(var(--color-brand-rgb-current), 0.5);
+}
+::selection { background: var(--color-brand); color: var(--color-brand-ink); }
+
+/* Keyframe animations */
 @keyframes cm-scroll-line {
   0%   { transform: translateY(-100%); opacity: 0; }
   20%  { opacity: 1; }
   80%  { opacity: 1; }
   100% { transform: translateY(200%); opacity: 0; }
-}
-@keyframes cm-gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
 }
 @keyframes cm-ring-cw {
   from { transform: translate(-50%, -50%) rotate(0deg); }
@@ -61,12 +124,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; 
 .hero-visual-float {
   animation: cm-float 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
-/* ── Hero layout ──
-   Below the 968px breakpoint the grid stacks to a single column, so the 3D
-   visual would otherwise inherit the full viewport width — at phone/tablet
-   aspect ratios that makes it (and its decorative ring) enormous, pushing
-   everything else off-screen. Capping its width keeps the stacked layout
-   compact instead of "disordered". */
+
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -91,10 +149,10 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; 
   aspect-ratio: 1 / 1;
   border-radius: 1.75rem;
   overflow: visible;
-  transform: translateZ(0);          /* capa propia estable */
+  transform: translateZ(0);
   -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;        /* mata el flicker subpíxel durante el scale de entrada */
-  isolation: isolate;                 /* stacking context propio: no se re-compone junto al glow */
+  backface-visibility: hidden;
+  isolation: isolate;
 }
 @media (min-width: 640px) {
   .hero-visual-wrap { max-width: 26rem; }
@@ -107,18 +165,8 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; 
   .hero-visual { aspect-ratio: 4 / 3; }
 }
 
-/* ── ModelShowcase responsive ──
-   Below 1024px (tablets and phones) six scattered annotations don't fit
-   without overlapping each other and the center title, so they're swapped
-   for one larger card that cycles through the specs as you scroll. The
-   rotation dial and the top-right spec counter are dropped in that mode —
-   the compact card already shows its own index, and the freed space keeps
-   the section from feeling cluttered. */
 .showcase-annotations-compact { display: none; }
 @media (max-width: 1023px) {
-  /* !important: these elements also carry an inline `display` (set via their
-     React style prop for layout), which otherwise always wins over a plain
-     class rule regardless of specificity. */
   .showcase-annotations-desktop,
   .showcase-dial,
   .showcase-speccount {
@@ -127,10 +175,11 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-inter), system-ui, sans-serif; 
   .showcase-annotations-compact { display: block !important; }
 }
 
-/* ── Focus visible ── */
-button:focus-visible, a:focus-visible { outline: 2px solid #FACC15; outline-offset: 3px; }
+button:focus-visible, a:focus-visible { 
+  outline: 2px solid var(--color-brand); 
+  outline-offset: 3px; 
+}
 
-/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

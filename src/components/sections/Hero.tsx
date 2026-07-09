@@ -20,9 +20,9 @@ interface HeroContent {
 const CONTENT: Record<'motocultores' | 'bombas', HeroContent> = {
   motocultores: {
     category: 'Campomaq · Maquinaria Agrícola',
-    titleLine1: 'Potencia sin',
-    titleLine2: 'concesiones.',
-    tagline: 'Motocultores de élite para el campo ecuatoriano.',
+    titleLine1: 'TITAN',
+    titleLine2: 'PRO',
+    tagline: 'Maquinaria agrícola diésel de 16 HP de alto torque. Diseñada para dominar la labranza y el transporte pesado en las exigentes condiciones del campo ecuatoriano.',
     badge: 'AgroForce 700',
     cta: 'Ver Motocultores',
     href: 'https://www.campomaq.com.ec/productos/?category=motocultores',
@@ -55,20 +55,26 @@ const SLIDER_IMAGES = {
   ],
 };
 
-// Luminous aura that reveals behind the tractor image on hover — no shape,
-// no edges, just a diffuse golden glow (radial gradient fading to fully
-// transparent + blur) for a subtle premium depth effect. Uses the same
-// accent tone as the rest of the page so it doesn't drift orange.
-const GlowAura = ({ color, active }: { color: string; active: boolean }) => (
+// Luminous aura that sits permanently behind the tractor image — no shape,
+// no hard edges, just a diffuse golden glow (radial gradient fading to fully
+// transparent + heavy blur) for a premium depth effect. Uses the same accent
+// tone as the rest of the page so it doesn't drift orange. Pure inline styles
+// (no Tailwind arbitrary values) so the large negative inset is guaranteed
+// to render the same regardless of JIT/purge behavior.
+const GlowAura = ({ active }: { active: boolean }) => (
   <motion.div
-    className="pointer-events-none absolute inset-[-35%] z-0 rounded-full"
     style={{
-      background: `radial-gradient(circle, ${color} 0%, rgba(0,0,0,0) 68%)`,
-      filter: 'blur(30px)',
+      position: 'absolute',
+      inset: '-20%',
+      zIndex: 0,
+      pointerEvents: 'none',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, var(--color-brand) 0%, var(--color-brand-secondary) 35%, transparent 70%)',
+      filter: 'blur(45px)',
     }}
-    initial={{ opacity: 0, scale: 0.7 }}
-    animate={active ? { opacity: 0.65, scale: 1 } : { opacity: 0, scale: 0.7 }}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
+    initial={{ opacity: 0 }}
+    animate={active ? { opacity: 0.95 } : { opacity: 0 }}
+    transition={{ duration: 0.8, ease: 'easeOut' }}
   />
 );
 
@@ -357,15 +363,15 @@ export const Hero = () => {
               onMouseLeave={() => setVisualHovered(false)}
             >
               {/* Paint splash burst — reveals behind the tractor on hover */}
-              <GlowAura color={accentColor} active={visualHovered} />
+              <GlowAura active={true} />
 
               {/* Container de imágenes — hover: lift + scale, riding the splash reveal */}
               <motion.div
                 className="relative z-10 w-full h-full rounded-[50px] overflow-hidden bg-[rgba(238,226,160,0.02)]"
                 style={{
                   boxShadow: `0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(${accentColorRgb},0.08)`,
-                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 15%)',
-                  maskImage: 'linear-gradient(to right, transparent 0%, black 15%)',
+                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
+                  maskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
                 }}
                 animate={visualHovered ? { scale: 1.05, y: -6 } : { scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -390,8 +396,9 @@ export const Hero = () => {
                     style={{
                       width: '100%',
                       height: '100%',
-                      objectFit: 'cover',
+                      objectFit: 'contain',
                       display: 'block',
+                      transform: 'scale(0.92) translateX(4%)',
                     }}
                     loading="lazy"
                   />
