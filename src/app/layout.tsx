@@ -2,7 +2,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { CustomCursor } from '@/components/ui/CustomCursor';
 import { ScrollingBackground } from '@/components/ui/ScrollingBackground';
 import { FloatingContact } from '@/components/ui/FloatingContact';
 import './globals.css';
@@ -29,7 +28,6 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>
           <ScrollingBackground />
-          <CustomCursor />
           <FloatingContact />
           {children}
         </ThemeProvider>

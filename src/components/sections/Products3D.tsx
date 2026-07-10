@@ -274,10 +274,9 @@ const bombasData: ProductData[] = [
 ];
 
 const titanProImages = [
-  '/images/M01.png',
+  '/images/M04.png',
   '/images/M02.png',
   '/images/M03.png',
-  '/images/M04.png',
 ];
 
 const titanProSpecs = [
@@ -474,7 +473,7 @@ export const Products3D = () => {
               style={{
                 display: 'grid',
                 gap: '3rem',
-                alignItems: 'start',
+                alignItems: 'center',
                 opacity: entered ? 1 : 0,
                 transform: entered ? 'translateY(0)' : 'translateY(40px)',
                 transition: 'opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s',
@@ -488,8 +487,8 @@ export const Products3D = () => {
                 style={{
                   position: 'sticky',
                   top: '9rem',
-                  marginTop: '0px',
-                  alignSelf: 'start',
+                  marginTop: '-5rem',
+                  alignSelf: 'center',
                   background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
                   border: `1px solid ${galleryHovered ? `rgba(${accentColorRgb}, 0.45)` : `rgba(${accentColorRgb}, 0.16)`}`,
                   borderRadius: '2rem',
@@ -507,16 +506,8 @@ export const Products3D = () => {
                 style={{
                   position: 'relative',
                   aspectRatio: '1/1',
-                  borderRadius: '1.5rem',
-                  overflow: 'hidden',
-                  background: `
-                    radial-gradient(circle at 50% 50%, rgba(${accentColorRgb}, 0.12) 0%, rgba(0, 0, 0, 0.6) 80%),
-                    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.003) 0px, rgba(255, 255, 255, 0.003) 1px, transparent 1px, transparent 4px),
-                    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.003) 0px, rgba(255, 255, 255, 0.003) 1px, transparent 1px, transparent 4px)
-                  `,
-                  border: `1px solid rgba(${accentColorRgb}, 0.25)`,
+                  background: 'transparent',
                   marginBottom: '1.25rem',
-                  boxShadow: 'inset 0 0 25px rgba(0, 0, 0, 0.6)',
                 }}
               >
                 <Image

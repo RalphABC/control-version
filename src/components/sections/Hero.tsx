@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -22,7 +23,7 @@ const CONTENT: Record<'motocultores' | 'bombas', HeroContent> = {
     category: 'Campomaq · Maquinaria Agrícola',
     titleLine1: 'TITAN',
     titleLine2: 'PRO',
-    tagline: 'Maquinaria agrícola diésel de 16 HP de alto torque. Diseñada para dominar la labranza y el transporte pesado en las exigentes condiciones del campo ecuatoriano.',
+    tagline: 'El motocultor diésel estrella de Campomaq. Con potencia de 16 HP, alta resistencia para el trabajo pesado y rendimiento superior diseñado para la labranza exigente.',
     badge: 'AgroForce 700',
     cta: 'Ver Motocultores',
     href: 'https://www.campomaq.com.ec/productos/?category=motocultores',
@@ -42,10 +43,10 @@ const CONTENT: Record<'motocultores' | 'bombas', HeroContent> = {
 // Ajusta estas rutas según tu estructura de archivos
 const SLIDER_IMAGES = {
   motocultores: [
-    '/images/M01.png',
+    '/images/M04.png',
     '/images/M02.png',
     '/images/M03.png',
-    '/images/M04.png',
+    '/images/M01.png',
   ],
   bombas: [
     '/images/B01.png',
@@ -229,48 +230,33 @@ export const Hero = () => {
         className="hero-grid"
         style={{
           position: 'relative', zIndex: 10,
-          maxWidth: '80rem', width: '100%', margin: '0 auto',
+          maxWidth: '80rem', width: '100%', margin: '-80px auto 0',
           willChange: 'transform, opacity',
         }}
       >
         {/* ── Left: text ── */}
         <div className="hero-text">
-          {/* Product toggle */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center',
-            gap: '0.3rem',
-            padding: '0.28rem',
-            borderRadius: '9999px',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            marginBottom: 'clamp(1.7rem, 6vw, 2.8rem)',
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
-            transition: 'opacity 0.6s ease, transform 0.6s ease',
-          }}>
-            <button
-              onClick={() => setProductMode('motocultores')}
-              style={{
-                ...TOGGLE_BASE,
-                background: isMotocultores ? 'linear-gradient(135deg, #FACC15, #F59E0B)' : 'transparent',
-                color: isMotocultores ? '#000' : 'rgba(255,255,255,0.3)',
-                boxShadow: isMotocultores ? '0 0 24px rgba(250,204,21,0.35)' : 'none',
-              }}
-            >
-              Motocultores
-            </button>
-            <button
-              onClick={() => setProductMode('bombas')}
-              style={{
-                ...TOGGLE_BASE,
-                background: !isMotocultores ? 'linear-gradient(135deg, #F97316, #FBBF24)' : 'transparent',
-                color: !isMotocultores ? '#000' : 'rgba(255,255,255,0.3)',
-                boxShadow: !isMotocultores ? '0 0 24px rgba(249,115,22,0.35)' : 'none',
-              }}
-            >
-              Bombas
-            </button>
-          </div>
+          {/* Logo */}
+          <a
+            href="#inicio"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+              marginBottom: 'clamp(1.7rem, 6vw, 2.8rem)',
+            }}
+          >
+            <div style={{ position: 'relative', width: '170px', height: '54px' }}>
+              <Image
+                src="/images/campomaq.png"
+                alt="Logo Campomaq"
+                fill
+                sizes="170px"
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </div>
+          </a>
 
           {/* Category eyebrow */}
           <p style={{
@@ -367,11 +353,9 @@ export const Hero = () => {
 
               {/* Container de imágenes — hover: lift + scale, riding the splash reveal */}
               <motion.div
-                className="relative z-10 w-full h-full rounded-[50px] overflow-hidden bg-[rgba(238,226,160,0.02)]"
+                className="relative z-10 w-full h-full"
                 style={{
-                  boxShadow: `0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(${accentColorRgb},0.08)`,
-                  WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
-                  maskImage: 'linear-gradient(to right, transparent 0%, black 40%)',
+                  background: 'transparent',
                 }}
                 animate={visualHovered ? { scale: 1.05, y: -6 } : { scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -398,20 +382,19 @@ export const Hero = () => {
                       height: '100%',
                       objectFit: 'contain',
                       display: 'block',
-                      transform: 'scale(0.92) translateX(4%)',
+                      // Scale M04.png by 10-15% (1.04 vs 0.92) and align it closer to the text (translateX 2% vs 4%)
+                      transform: src === '/images/M04.png' 
+                        ? 'scale(1.04) translateX(2%)' 
+                        : 'scale(0.92) translateX(4%)',
+                      // Enhanced shadow integration for premium realistic depth
+                      filter: src === '/images/M04.png'
+                        ? 'drop-shadow(0 15px 35px rgba(0,0,0,0.65)) drop-shadow(0 5px 15px rgba(0,0,0,0.3))'
+                        : 'drop-shadow(0 10px 20px rgba(0,0,0,0.4))',
                     }}
                     loading="lazy"
                   />
                 </div>
               ))}
-
-              {/* Overlay gradiente para legibilidad */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: `linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.2) 100%)`,
-                pointerEvents: 'none',
-              }} />
 
               {/* Controles del slider - solo en desktop (opcional) */}
               <div style={{

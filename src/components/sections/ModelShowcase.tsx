@@ -448,7 +448,7 @@ export const ModelShowcase = () => {
               ref={progressFillRef}
               style={{
                 width: '100%', height: '0%',
-                background: `linear-gradient(to bottom, ${accentColor}, #F59E0B)`,
+                background: `linear-gradient(to bottom, ${accentColor}, ${accentColorSecondary})`,
                 boxShadow: `0 0 6px rgba(${accentColorRgb},0.7)`,
               }}
             />

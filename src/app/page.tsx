@@ -9,7 +9,6 @@ import { ModelShowcase } from '@/components/sections/ModelShowcase';
 import { YoutubeVideo } from '@/components/sections/YoutubeVideo';
 import { Products3D } from '@/components/sections/Products3D';
 import { CTA } from '@/components/sections/CTA';
-import { QRCodeSection } from '@/components/sections/QRCodeSection';
 import { Footer } from '@/components/sections/Footer';
 
 export default function Home() {
@@ -31,7 +30,6 @@ export default function Home() {
         <YoutubeVideo />
         <Products3D />
         <CTA />
-        <QRCodeSection />
         <Footer />
       </main>
     </>

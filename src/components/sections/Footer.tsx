@@ -48,7 +48,7 @@ export const Footer = () => {
             {[
               { icon: <Facebook size={18} />, href: 'https://www.facebook.com/campomaq/', label: 'Facebook' },
               { icon: <Instagram size={18} />, href: 'https://www.instagram.com/campomaq/', label: 'Instagram' },
-              { icon: <Youtube size={18} />, href: 'https://www.youtube.com/@campomaqecuador', label: 'YouTube' },
+              { icon: <Youtube size={18} />, href: 'https://www.youtube.com/@campomaq9918', label: 'YouTube' },
             ].map((soc, i) => (
               <a
                 key={i}
@@ -88,47 +88,7 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Column 2: Quick Links */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <h4
-            style={{
-              fontSize: '0.85rem',
-              fontWeight: 800,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#fff',
-            }}
-          >
-            Navegación
-          </h4>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {[
-              { name: 'Inicio', href: '#inicio' },
-              { name: 'Showcase 3D', href: '#showcase' },
-              { name: 'Ficha Técnica', href: '#productos' },
-              { name: 'Demostración', href: '#video-demo' },
-              { name: 'Contacto', href: '#contacto' },
-            ].map((link) => (
-              <li key={link.name}>
-                <a
-                  href={link.href}
-                  style={{
-                    fontSize: '0.82rem',
-                    color: 'rgba(255,255,255,0.6)',
-                    textDecoration: 'none',
-                    transition: 'color 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = accentColor}
-                  onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-                >
-                  {link.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Column 3: Contact Info */}
+        {/* Column 2: Contact Info */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <h4
             style={{
@@ -166,7 +126,7 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Column 4: Authorized Badge & Info */}
+        {/* Column 3: Authorized Badge & Info */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <h4
             style={{

@@ -101,7 +101,7 @@ export const Model3D = React.memo(function Model3D({
   cameraZ = 4.5,
   style = DEFAULT_STYLE,
   accentColor = "#FACC15",
-  accentColorSecondary = "#F59E0B",
+  accentColorSecondary = "#C8A104",
   frameloop = 'always',
   float = true,
 }: Model3DProps) {

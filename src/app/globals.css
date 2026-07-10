@@ -13,22 +13,22 @@
   --glow-strength: 0.22;
   --shell-max: 72rem;
 
-  /* Default dynamic color variables */
+  /* Unified corporate yellow — single hue for both product modes, no orange */
   --color-brand-current: #facc15;
   --color-brand-rgb-current: 250, 204, 21;
-  --color-brand-secondary-current: #f59e0b;
+  --color-brand-secondary-current: #c8a104;
 }
 
 [data-mode="motocultores"] {
   --color-brand-current: #facc15;
   --color-brand-rgb-current: 250, 204, 21;
-  --color-brand-secondary-current: #f59e0b;
+  --color-brand-secondary-current: #c8a104;
 }
 
 [data-mode="bombas"] {
-  --color-brand-current: #f97316;
-  --color-brand-rgb-current: 249, 115, 22;
-  --color-brand-secondary-current: #ea580c;
+  --color-brand-current: #facc15;
+  --color-brand-rgb-current: 250, 204, 21;
+  --color-brand-secondary-current: #c8a104;
 }
 
 @theme {
@@ -67,11 +67,14 @@
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
-/* Custom cursor hide default */
-@media (hover: hover) and (pointer: fine) {
-  *, *::before, *::after {
-    cursor: none !important;
-  }
+/* Restablece el cursor nativo del navegador en todo el sitio */
+html, body, *, *::before, *::after {
+  cursor: auto;
+}
+
+/* Restablece el cursor tipo pointer (mano) en elementos interactivos */
+a, button, [role="button"], input[type="submit"], select, option, [onClick] {
+  cursor: pointer !important;
 }
 
 body {
@@ -158,7 +161,7 @@ h1, h2, h3, h4, h5, h6 {
   .hero-visual-wrap { max-width: 26rem; }
 }
 @media (min-width: 968px) {
-  .hero-grid { grid-template-columns: 1.05fr 0.95fr; gap: 4rem; }
+  .hero-grid { grid-template-columns: 1.05fr 0.95fr; gap: 20px; }
   .hero-text { text-align: left; }
   .hero-sub { margin: 0 0 3rem; }
   .hero-visual-wrap { align-items: stretch; max-width: none; margin: 0; }

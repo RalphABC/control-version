@@ -63,7 +63,7 @@ export const LoadingScreen = () => {
             transform: 'translate(-50%,-50%)',
             width: 32, height: 32,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #FACC15, #F59E0B)',
+            background: 'linear-gradient(135deg, #FACC15, #C8A104)',
             boxShadow: '0 0 30px rgba(250,204,21,0.4)',
           }} />
         </div>
@@ -74,7 +74,7 @@ export const LoadingScreen = () => {
         <div style={{
           height: '100%',
           width: `${Math.min(progress, 100)}%`,
-          background: 'linear-gradient(to right, #FACC15, #F59E0B)',
+          background: 'linear-gradient(to right, #FACC15, #C8A104)',
           borderRadius: 2,
           transition: 'width 0.15s ease',
           boxShadow: '0 0 8px rgba(250,204,21,0.5)',
