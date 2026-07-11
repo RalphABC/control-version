@@ -276,7 +276,7 @@ const bombasData: ProductData[] = [
 const titanProImages = [
   '/images/M04.png',
   '/images/M02.png',
-  '/images/M03.png',
+  '/images/M06.png',
 ];
 
 const titanProSpecs = [
