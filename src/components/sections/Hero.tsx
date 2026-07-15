@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { useState, useEffect, useRef, useCallback, type CSSProperties } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -144,6 +144,27 @@ export const Hero = () => {
     return () => { el.removeEventListener('mousemove', handler); cancelAnimationFrame(frame); };
   }, []);
 
+  const goToNext = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev + 1) % currentImages.length);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, currentImages.length]);
+
+  const goToPrevious = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev - 1 + currentImages.length) % currentImages.length);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, currentImages.length]);
+
+  const goToSlide = useCallback((index: number) => {
+    if (isTransitioning || index === currentImageIndex) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex(index);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, currentImageIndex]);
+
   // Auto-slide con intervalo de 3 segundos
   useEffect(() => {
     // Reiniciar timer cuando cambian las imágenes (por cambio de modo)
@@ -160,33 +181,14 @@ export const Hero = () => {
         clearInterval(sliderTimerRef.current);
       }
     };
-  }, [currentImages, isMotocultores]);
+  }, [currentImages, isMotocultores, goToNext]);
 
   // Resetear índice cuando cambia el modo
   useEffect(() => {
-    setCurrentImageIndex(0);
+    setTimeout(() => {
+      setCurrentImageIndex(0);
+    }, 0);
   }, [isMotocultores]);
-
-  const goToNext = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentImageIndex((prev) => (prev + 1) % currentImages.length);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  const goToPrevious = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentImageIndex((prev) => (prev - 1 + currentImages.length) % currentImages.length);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
-
-  const goToSlide = (index: number) => {
-    if (isTransitioning || index === currentImageIndex) return;
-    setIsTransitioning(true);
-    setCurrentImageIndex(index);
-    setTimeout(() => setIsTransitioning(false), 500);
-  };
 
   const c = isMotocultores ? CONTENT.motocultores : CONTENT.bombas;
 

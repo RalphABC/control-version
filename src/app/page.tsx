@@ -23,7 +23,9 @@ export default function Home() {
 
   useEffect(() => {
     if (timePassed && isModelLoaded) {
-      setIsLoading(false);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 0);
     }
   }, [timePassed, isModelLoaded]);
 
