@@ -30,12 +30,13 @@ export const Footer = () => {
       >
         {/* Column 1: Brand Info & Social Media */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div style={{ position: 'relative', width: '160px', height: '50px' }}>
+          <div style={{ position: 'relative', width: '140px', height: '44px' }}>
             <Image
-              src="/images/campomaq.png"
+              src="/images/campo_maq_transparent.webp"
               alt="Logo Campomaq"
               fill
-              sizes="(max-width: 768px) 160px, 160px"
+              sizes="(max-width: 768px) 140px, 280px"
+              quality={95}
               style={{ objectFit: 'contain' }}
             />
           </div>

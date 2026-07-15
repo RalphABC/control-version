@@ -5,12 +5,12 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Model3D } from '@/components/ui/Model3D';
 
 const specs = [
-  { id: 'motor',      label: 'Potencia',       value: '16 HP',             unit: 'Motor diésel',             x: 24, y: 63, dir: 'left'  as const, lineLen: 158, threshold: 0.10 },
-  { id: 'velocidades', label: 'Velocidades',     value: '6 velocidades',     unit: '3 adelante / 3 reversa',    x: 68, y: 74, dir: 'right' as const, lineLen: 148, threshold: 0.25 },
-  { id: 'peso',       label: 'Peso',             value: '162 kg',            unit: '',                         x: 26, y: 42, dir: 'left'  as const, lineLen: 136, threshold: 0.40 },
-  { id: 'ancho',      label: 'Ancho de trabajo', value: '40 × 45 × 50 cm',   unit: '',                         x: 70, y: 44, dir: 'right' as const, lineLen: 152, threshold: 0.55 },
-  { id: 'arranque',   label: 'Arranque',         value: 'Eléctrico o manual', unit: '',                        x: 28, y: 22, dir: 'left'  as const, lineLen: 142, threshold: 0.70 },
-  { id: 'garantia',   label: 'Garantía',         value: '2 años',            unit: 'Respaldo oficial',         x: 69, y: 24, dir: 'right' as const, lineLen: 130, threshold: 0.84 },
+  { id: 'motor',      label: 'Potencia',       value: '16 HP',             unit: 'Motor diésel',             x: 24, y: 63, dir: 'left'  as const, lineLen: 158, threshold: 0.15 },
+  { id: 'velocidades', label: 'Velocidades',     value: '6 velocidades',     unit: '3 adelante / 3 reversa',    x: 68, y: 74, dir: 'right' as const, lineLen: 148, threshold: 0.15 },
+  { id: 'peso',       label: 'Peso',             value: '162 kg',            unit: '',                         x: 26, y: 42, dir: 'left'  as const, lineLen: 136, threshold: 0.48 },
+  { id: 'ancho',      label: 'Ancho de trabajo', value: '40 × 45 × 50 cm',   unit: '',                         x: 70, y: 44, dir: 'right' as const, lineLen: 152, threshold: 0.48 },
+  { id: 'arranque',   label: 'Arranque',         value: 'Eléctrico o manual', unit: '',                        x: 28, y: 22, dir: 'left'  as const, lineLen: 142, threshold: 0.80 },
+  { id: 'garantia',   label: 'Garantía',         value: '2 años',            unit: 'Respaldo oficial',         x: 69, y: 24, dir: 'right' as const, lineLen: 130, threshold: 0.80 },
 ] as const;
 
 /* ── Annotation ──────────────────────────────────────────────────────────────
@@ -122,31 +122,19 @@ const Annotation = React.memo(function Annotation({
   );
 });
 
-export const ModelShowcase = () => {
+interface ModelShowcaseProps {
+  onModelLoaded?: () => void;
+}
+
+export const ModelShowcase = ({ onModelLoaded }: ModelShowcaseProps) => {
   const { accentColor, accentColorRgb, accentColorSecondary } = useTheme();
 
   // React state: ONLY for annotation visibility (max 6 discrete updates)
   const [shownCount, setShownCount] = useState(0);
   const shownCountRef = useRef(0);
-  const [hasBeenVisible, setHasBeenVisible] = useState(false);
+  const [isIntersecting, setIsIntersecting] = useState(false);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasBeenVisible(true);
-          obs.disconnect();
-        }
-      },
-      { rootMargin: '200px 0px' }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  // Section geometry — updated once on mount + resize
+  // Section geometry
   const sectionRef = useRef<HTMLElement>(null);
   const sectionTopRef = useRef(0);
   const scrollHeightRef = useRef(1);
@@ -167,8 +155,6 @@ export const ModelShowcase = () => {
   const specCountWrapRef = useRef<HTMLDivElement>(null);
 
   // Compact single-card mode (mobile/tablet) — one spec at a time, cycling
-  // through with its own appear/disappear fade instead of the scattered
-  // constellation used on wider screens.
   const compactWrapRef = useRef<HTMLDivElement>(null);
   const compactIndexRef = useRef<HTMLSpanElement>(null);
   const compactLabelRef = useRef<HTMLSpanElement>(null);
@@ -176,101 +162,163 @@ export const ModelShowcase = () => {
   const compactUnitRef = useRef<HTMLDivElement>(null);
   const compactShownIndexRef = useRef(-1);
 
-  // Measure section bounds once + on resize
+  // Measure section bounds and handle intersection observer
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+
     const measure = () => {
       const rect = el.getBoundingClientRect();
       sectionTopRef.current = rect.top + window.scrollY;
       scrollHeightRef.current = Math.max(1, el.offsetHeight - window.innerHeight);
     };
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          // Measure coordinates when entering the screen to handle layout shifts after loading finishes
+          measure();
+        }
+      },
+      { rootMargin: '200px 0px' }
+    );
+    obs.observe(el);
+
     measure();
     window.addEventListener('resize', measure, { passive: true });
-    return () => window.removeEventListener('resize', measure);
+
+    return () => {
+      obs.disconnect();
+      window.removeEventListener('resize', measure);
+    };
   }, []);
 
   // Scroll handler — all continuous updates happen here via direct DOM, zero React re-renders
   useEffect(() => {
+    let ticking = false;
+    let lastP = -1;
+    let lastPEntry = -1;
+
     const handler = () => {
-      const raw = (window.scrollY - sectionTopRef.current) / scrollHeightRef.current;
-      const p = Math.max(0, Math.min(1, raw));
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const viewportHeight = window.innerHeight || 800;
+          const entryStart = sectionTopRef.current - viewportHeight;
+          const entryEnd = sectionTopRef.current;
 
-      // Feed the Three.js loop
-      scrollRef.current = p;
+          const rawEntry = (window.scrollY - entryStart) / Math.max(1, entryEnd - entryStart);
+          const pEntry = Math.max(0, Math.min(1, rawEntry));
 
-      // Background glow opacity
-      if (glowRef.current) glowRef.current.style.opacity = String(0.11 + p * 0.89);
+          const raw = (window.scrollY - sectionTopRef.current) / scrollHeightRef.current;
+          const p = Math.max(0, Math.min(1, raw));
 
-      // Grid overlay opacity
-      if (gridRef.current) gridRef.current.style.opacity = String(0.25 + p * 0.65);
+          // If scroll progress hasn't changed, skip DOM operations entirely to prevent layout thrashing
+          if (p === lastP && pEntry === lastPEntry) {
+            ticking = false;
+            return;
+          }
+          lastP = p;
+          lastPEntry = pEntry;
 
-      // Model wrapper fade-in
-      if (modelWrapRef.current) modelWrapRef.current.style.opacity = String(Math.min(p * 10, 1));
+          // Feed the Three.js loop
+          scrollRef.current = p;
 
-      // Eyebrow fade-in
-      if (eyebrowRef.current) eyebrowRef.current.style.opacity = String(Math.min(p * 8, 1));
+          // Background glow opacity
+          if (glowRef.current) {
+            glowRef.current.style.opacity = String(pEntry < 1 ? pEntry * 0.11 : 0.11 + p * 0.89);
+          }
 
-      // Center title: fade in then out
-      if (titleWrapRef.current) {
-        const t = p < 0.5
-          ? Math.max(0, Math.min(1, (p - 0.05) * 8))
-          : Math.max(0, Math.min(1, (0.90 - p) * 8));
-        titleWrapRef.current.style.opacity = String(t);
-        titleWrapRef.current.style.transform = `translateY(${(p - 0.5) * -80}px)`;
-      }
+          // Grid overlay opacity
+          if (gridRef.current) {
+            gridRef.current.style.opacity = String(pEntry < 1 ? pEntry * 0.25 : 0.25 + p * 0.65);
+          }
 
-      if (dialWrapRef.current) dialWrapRef.current.style.opacity = String(Math.min(p * 6, 1));
+          // Model wrapper fade-in (linked to entry progress to eliminate the black screen gap)
+          if (modelWrapRef.current) {
+            modelWrapRef.current.style.opacity = String(pEntry);
+          }
 
-      // Progress bar
-      if (progressFillRef.current) progressFillRef.current.style.height = `${p * 100}%`;
-      if (progressBarRef.current) progressBarRef.current.style.opacity = String(Math.min(p * 8, 1));
+          // Eyebrow fade-in
+          if (eyebrowRef.current) {
+            eyebrowRef.current.style.opacity = String(pEntry);
+          }
 
-      // Spec count text (direct update, no re-render)
-      const shown = specs.filter(s => p >= s.threshold).length;
-      if (specCountRef.current) specCountRef.current.textContent = `${shown} / ${specs.length}`;
-      if (specCountWrapRef.current) specCountWrapRef.current.style.opacity = String(Math.min(p * 8, 1));
+          // Center title: fade in during entry, fade out at the end of sticky
+          if (titleWrapRef.current) {
+            const t = pEntry < 1
+              ? pEntry
+              : Math.max(0, Math.min(1, (0.90 - p) * 8));
+            titleWrapRef.current.style.opacity = String(t);
+            titleWrapRef.current.style.transform = `translateY(${(p - 0.5) * -80}px)`;
+          }
 
-      // Trigger React state ONLY when a threshold crossing occurs (max 6 total updates)
-      if (shown !== shownCountRef.current) {
-        shownCountRef.current = shown;
-        setShownCount(shown);
-      }
+          if (dialWrapRef.current) {
+            dialWrapRef.current.style.opacity = String(pEntry);
+          }
 
-      // Compact card (mobile/tablet): split the scroll range into one segment
-      // per spec and fade the active one in, hold, then fade it out before
-      // the next takes over. Hidden via CSS on wider screens, but the DOM
-      // writes here are cheap enough to always run rather than branch on a
-      // matchMedia check.
-      const segLen = 1 / specs.length;
-      const segPos = p / segLen;
-      const idx = Math.max(0, Math.min(specs.length - 1, Math.floor(segPos)));
-      const localT = segPos - idx;
-      let cOpacity = 1;
-      if (localT < 0.18) cOpacity = localT / 0.18;
-      else if (localT > 0.82) cOpacity = (1 - localT) / 0.18;
-      cOpacity = Math.max(0, Math.min(1, cOpacity));
+          // Progress bar
+          if (progressFillRef.current) {
+            progressFillRef.current.style.height = `${p * 100}%`;
+          }
+          if (progressBarRef.current) {
+            progressBarRef.current.style.opacity = String(pEntry);
+          }
 
-      if (idx !== compactShownIndexRef.current) {
-        compactShownIndexRef.current = idx;
-        const spec = specs[idx];
-        if (compactLabelRef.current) compactLabelRef.current.textContent = spec.label;
-        if (compactValueRef.current) compactValueRef.current.textContent = spec.value;
-        if (compactUnitRef.current) compactUnitRef.current.textContent = spec.unit;
-        if (compactIndexRef.current) compactIndexRef.current.textContent = `0${idx + 1} / 0${specs.length}`;
-      }
-      if (compactWrapRef.current) {
-        compactWrapRef.current.style.opacity = String(cOpacity);
-        compactWrapRef.current.style.transform = `translate(-50%, -50%) translateY(${(1 - cOpacity) * 12}px)`;
+          // Spec count text (direct update, no re-render)
+          const shown = specs.filter(s => p >= s.threshold).length;
+          if (specCountRef.current) {
+            specCountRef.current.textContent = `${shown} / ${specs.length}`;
+          }
+          if (specCountWrapRef.current) {
+            specCountWrapRef.current.style.opacity = String(pEntry);
+          }
+
+          // Trigger React state ONLY when a threshold crossing occurs (max 6 total updates)
+          if (shown !== shownCountRef.current) {
+            shownCountRef.current = shown;
+            setShownCount(shown);
+          }
+
+          // Compact card (mobile/tablet): split the scroll range
+          const segLen = 1 / specs.length;
+          const segPos = p / segLen;
+          const idx = Math.max(0, Math.min(specs.length - 1, Math.floor(segPos)));
+          const localT = segPos - idx;
+          let cOpacity = 1;
+          if (localT < 0.18) cOpacity = localT / 0.18;
+          else if (localT > 0.82) cOpacity = (1 - localT) / 0.18;
+          cOpacity = Math.max(0, Math.min(1, cOpacity));
+
+          const compactOpacity = pEntry < 1 ? pEntry : cOpacity;
+
+          if (idx !== compactShownIndexRef.current) {
+            compactShownIndexRef.current = idx;
+            const spec = specs[idx];
+            if (compactLabelRef.current) compactLabelRef.current.textContent = spec.label;
+            if (compactValueRef.current) compactValueRef.current.textContent = spec.value;
+            if (compactUnitRef.current) compactUnitRef.current.textContent = spec.unit;
+            if (compactIndexRef.current) compactIndexRef.current.textContent = `0${idx + 1} / 0${specs.length}`;
+          }
+          if (compactWrapRef.current) {
+            compactWrapRef.current.style.opacity = String(compactOpacity);
+            compactWrapRef.current.style.transform = `translate(-50%, -50%) translateY(${(1 - compactOpacity) * 12}px)`;
+          }
+
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
     window.addEventListener('scroll', handler, { passive: true });
+    handler(); // Run once initially to sync state
+
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
   return (
-    <section ref={sectionRef} id="showcase" style={{ position: 'relative', height: '340vh' }}>
+    <section ref={sectionRef} id="showcase" style={{ position: 'relative', height: '340vh', marginTop: '6rem' }}>
       <div style={{
         position: 'sticky', top: 0,
         height: '100vh', overflow: 'hidden',
@@ -297,13 +345,16 @@ export const ModelShowcase = () => {
             `,
             backgroundSize: '80px 80px',
             opacity: 0.25,
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 200px, black calc(100% - 200px), transparent 100%)',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, black 200px, black calc(100% - 200px), transparent 100%)',
           }}
         />
 
-        {/* Top edge accent */}
+        {/* Top edge fade overlay to blend seamlessly with Hero */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 1, pointerEvents: 'none',
-          background: `linear-gradient(to right, transparent, rgba(${accentColorRgb},0.35), transparent)`,
+          position: 'absolute', top: 0, left: 0, right: 0, height: '200px', pointerEvents: 'none',
+          background: 'linear-gradient(to bottom, #000000 0%, transparent 100%)',
+          zIndex: 4,
         }} />
 
         {/* 3D canvas — opacity controlled via ref */}
@@ -311,16 +362,16 @@ export const ModelShowcase = () => {
           ref={modelWrapRef}
           style={{ position: 'absolute', inset: 0, opacity: 0, zIndex: 1 }}
         >
-          {hasBeenVisible && (
-            <Model3D
-              scrollRef={scrollRef}
-              autoRotate={false}
-              modelScale={1.7}
-              cameraZ={4.5}
-              accentColor={accentColor}
-              accentColorSecondary={accentColorSecondary}
-            />
-          )}
+          <Model3D
+            scrollRef={scrollRef}
+            autoRotate={false}
+            modelScale={1.7}
+            cameraZ={4.5}
+            accentColor={accentColor}
+            accentColorSecondary={accentColorSecondary}
+            frameloop={isIntersecting ? 'always' : 'demand'}
+            onLoaded={onModelLoaded}
+          />
         </div>
 
         {/* Annotation lines — desktop/laptop only. Below 1024px they're swapped
@@ -511,10 +562,11 @@ export const ModelShowcase = () => {
           </div>
         </div>
 
-        {/* Bottom edge accent */}
+        {/* Bottom edge fade overlay to blend seamlessly with the next section */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 1, pointerEvents: 'none',
-          background: `linear-gradient(to right, transparent, rgba(${accentColorRgb},0.25), transparent)`,
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: '200px', pointerEvents: 'none',
+          background: 'linear-gradient(to top, #000000 0%, transparent 100%)',
+          zIndex: 4,
         }} />
       </div>
     </section>

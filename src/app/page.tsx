@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { ScrollProgress } from '@/components/ui/ScrollProgress';
 import { Header } from '@/components/sections/Header';
@@ -13,10 +13,22 @@ import { Footer } from '@/components/sections/Footer';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [timePassed, setTimePassed] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 2600);
+    const t = setTimeout(() => setTimePassed(true), 2600);
     return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (timePassed && isModelLoaded) {
+      setIsLoading(false);
+    }
+  }, [timePassed, isModelLoaded]);
+
+  const handleModelLoaded = useCallback(() => {
+    setIsModelLoaded(true);
   }, []);
 
   return (
@@ -26,7 +38,7 @@ export default function Home() {
       <ScrollProgress />
       <main style={{ position: 'relative', zIndex: 1, color: '#fff', minHeight: '100vh' }}>
         <Hero />
-        <ModelShowcase />
+        <ModelShowcase onModelLoaded={handleModelLoaded} />
         <YoutubeVideo />
         <Products3D />
         <CTA />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, Suspense, useMemo } from 'react';
+import React, { useRef, Suspense, useMemo, useState, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -16,23 +16,23 @@ interface SceneProps {
   autoRotate: boolean;
   modelScale: number;
   float: boolean;
+  onLoaded?: () => void;
 }
 
-function ModelScene({ mouseRef, scrollRef, autoRotate, modelScale, float }: SceneProps) {
+function ModelScene({ mouseRef, scrollRef, autoRotate, modelScale, float, onLoaded }: SceneProps) {
   const gltf = useGLTF('/model3D_final.glb', 'https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
 
   const { scene, offset } = useMemo(() => {
     const s = gltf.scene.clone(true);
 
-    // Disable frustum culling and optimize materials to prevent flickering/popping during rotation
+    // Optimize materials and keep frustum culling enabled for maximum rendering speed
     s.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
-        child.frustumCulled = false;
+        child.frustumCulled = true;
         const mesh = child as THREE.Mesh;
         if (mesh.material) {
           const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
           materials.forEach((mat) => {
-            mat.side = THREE.DoubleSide;
             mat.depthWrite = true;
           });
         }
@@ -49,10 +49,19 @@ function ModelScene({ mouseRef, scrollRef, autoRotate, modelScale, float }: Scen
   }, [gltf.scene, modelScale]);
 
   const groupRef = useRef<THREE.Group>(null);
+  const renderedFrameCount = useRef(0);
 
   useFrame((state) => {
     if (!groupRef.current) return;
     const t = state.clock.elapsedTime;
+
+    // Trigger onLoaded after 2 frames are rendered to guarantee GPU shader compilation and texture upload
+    if (renderedFrameCount.current < 2) {
+      renderedFrameCount.current++;
+      if (renderedFrameCount.current === 2 && onLoaded) {
+        setTimeout(onLoaded, 0); // Execute on next tick to avoid state updates during render phase
+      }
+    }
 
     if (autoRotate) {
       // Use absolute time for rotation to prevent frame rate drops or timing fluctuations from causing stutters
@@ -91,6 +100,7 @@ export interface Model3DProps {
   /** Continuous idle bobbing. Disable alongside frameloop="demand" so the
    *  model doesn't "hop" to wherever sin(t) landed on the next invalidation. */
   float?: boolean;
+  onLoaded?: () => void;
 }
 
 export const Model3D = React.memo(function Model3D({
@@ -104,7 +114,16 @@ export const Model3D = React.memo(function Model3D({
   accentColorSecondary = "#C8A104",
   frameloop = 'always',
   float = true,
+  onLoaded,
 }: Model3DProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const handleLoaded = useCallback(() => {
+    setIsLoaded(true);
+    if (onLoaded) {
+      onLoaded();
+    }
+  }, [onLoaded]);
   // Memoized so Canvas never sees new object references between renders
   const camera = useMemo(
     () => ({ position: [0, 0.3, cameraZ] as [number, number, number], fov: 42, near: 0.1, far: 50 }),
@@ -114,7 +133,7 @@ export const Model3D = React.memo(function Model3D({
     () => ({
       alpha: true as const,
       antialias: true,
-      powerPreference: 'default' as const,
+      powerPreference: 'high-performance' as const,
     }),
     []
   );
@@ -141,7 +160,7 @@ export const Model3D = React.memo(function Model3D({
       gl={gl}
       dpr={[1, 1.25]}
       performance={{ min: 0.5 }}
-      frameloop={frameloop}
+      frameloop="always"
       onCreated={handleCreated}
     >
       <Suspense fallback={null}>
@@ -156,6 +175,7 @@ export const Model3D = React.memo(function Model3D({
           autoRotate={autoRotate}
           modelScale={modelScale}
           float={float}
+          onLoaded={handleLoaded}
         />
       </Suspense>
     </Canvas>

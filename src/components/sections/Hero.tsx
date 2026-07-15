@@ -246,12 +246,13 @@ export const Hero = () => {
               marginBottom: 'clamp(1.7rem, 6vw, 2.8rem)',
             }}
           >
-            <div style={{ position: 'relative', width: '400px', height: '150px' }}>
+            <div style={{ position: 'relative', width: '280px', height: '90px' }}>
               <Image
-                src="/images/campomaq.png"
+                src="/images/campo_maq_transparent.webp"
                 alt="Logo Campomaq"
                 fill
-                sizes="200px"
+                sizes="(max-width: 768px) 200px, 280px"
+                quality={95}
                 style={{ objectFit: 'contain' }}
                 priority
               />
