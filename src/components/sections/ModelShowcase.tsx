@@ -318,7 +318,7 @@ export const ModelShowcase = ({ onModelLoaded }: ModelShowcaseProps) => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="showcase" style={{ position: 'relative', height: '340vh', marginTop: '6rem' }}>
+    <section ref={sectionRef} id="showcase" style={{ position: 'relative', height: '160vh', marginTop: '6rem' }}>
       <div style={{
         position: 'sticky', top: 0,
         height: '100vh', overflow: 'hidden',
