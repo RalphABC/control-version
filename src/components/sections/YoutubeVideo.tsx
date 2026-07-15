@@ -17,7 +17,7 @@ export const YoutubeVideo = () => {
       id="video-demo"
       style={{
         position: 'relative',
-        padding: '8rem 1.5rem',
+        padding: '8rem 1.5rem 4rem',
         background: 'rgba(0, 0, 0, 0.82)',
         overflow: 'hidden',
       }}

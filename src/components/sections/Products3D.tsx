@@ -402,7 +402,7 @@ export const Products3D = () => {
       id="productos"
       style={{
         position: 'relative',
-        padding: '8rem 1.5rem',
+        padding: '4rem 1.5rem 8rem',
         background: 'linear-gradient(to bottom, rgba(0,0,0,0.82) 0%, rgba(5,5,5,0.82) 40%, rgba(10,10,10,0.82) 70%, rgba(0,0,0,0.82) 100%)',
         overflow: 'hidden',
       }}
